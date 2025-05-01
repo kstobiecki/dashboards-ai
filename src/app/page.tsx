@@ -77,7 +77,7 @@ export default function Home() {
           borderBottom: '1px solid #27272a',
           minHeight: 64,
         }}>
-          {open && <Typography variant="h6" component="div">Dashboard</Typography>}
+          {open && <Typography variant="h6" component="div">DashboardsAI</Typography>}
           <IconButton onClick={handleDrawerToggle}>
             {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>

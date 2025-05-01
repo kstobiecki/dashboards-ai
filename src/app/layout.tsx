@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Dashboard App",
+  title: "DashboardsAI",
   description: "A modern dashboard application",
 };
 
