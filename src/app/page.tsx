@@ -27,13 +27,7 @@ import Image from 'next/image';
 import { Dashboard } from './types/dashboard';
 
 const menuWidth = 69;
-const drawerWidth = 250;
-
-// Generate a stable ID for dashboards
-let idCounter = 0;
-const generateId = () => {
-  return `dashboard-${++idCounter}`;
-};
+const drawerWidth = 280;
 
 export default function Home() {
   const [selectedItem, setSelectedItem] = useState('dashboard');
@@ -67,6 +61,10 @@ export default function Home() {
     }
   };
 
+  const generateId = () => {
+    return `dashboard-${dashboards.length + 1}`;
+  };
+
   const handleCreateDashboard = (title: string, description: string) => {
     const newDashboard: Dashboard = {
       id: generateId(),
@@ -93,12 +91,40 @@ export default function Home() {
     switch (selectedItem) {
       case 'dashboard':
         return (
-          <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <Typography variant="h6" component="div" sx={{ mb: 3, color: '#e5e7eb' }}>
-              DashboardsAI
-            </Typography>
-            <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-              <List>
+          <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', p: 0 }}>
+            {/* Add Dashboard Button */}
+            <Box sx={{ 
+              display: 'flex',
+              justifyContent: 'flex-end',
+              p: 2,
+              pr: 0,
+            }}>
+              <IconButton
+                onClick={() => setIsCreateModalOpen(true)}
+                sx={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  width: 40,
+                  height: 40,
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    '& .MuiSvgIcon-root': {
+                      color: '#ffffff',
+                      transform: 'rotate(90deg)',
+                    },
+                  },
+                  '& .MuiSvgIcon-root': {
+                    color: '#6b7280',
+                    transition: 'all 0.2s ease-in-out',
+                  },
+                }}
+              >
+                <AddIcon />
+              </IconButton>
+            </Box>
+
+            {/* Dashboards List */}
+            <Box sx={{ flexGrow: 1, overflow: 'auto', p: 0 }}>
+              <List sx={{ p: 0, m: 0, '& > .MuiListItemButton-root': { mb: 1 } }}>
                 {dashboards.map((dashboard) => (
                   <ListItemButton
                     key={dashboard.id}
@@ -108,10 +134,34 @@ export default function Home() {
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      py: 1,
+                      height: 30,
+                      p: 0,
+                      pl: 3,
+                      pr: 1,
+                      m: 0,
+                      borderRadius: '20px',
+                      '&.Mui-selected': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                        },
+                      },
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                      },
                     }}
                   >
-                    <Typography sx={{ color: selectedDashboard?.id === dashboard.id ? '#ffffff' : '#6b7280' }}>
+                    <Typography 
+                      sx={{ 
+                        color: selectedDashboard?.id === dashboard.id ? '#ffffff' : '#6b7280',
+                        fontSize: '0.875rem',
+                        fontWeight: selectedDashboard?.id === dashboard.id ? 500 : 400,
+                        maxWidth: '180px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
                       {dashboard.title}
                     </Typography>
                     <IconButton
@@ -121,28 +171,25 @@ export default function Home() {
                         setDashboardToDelete(dashboard);
                         setIsDeleteModalOpen(true);
                       }}
-                      sx={{ color: '#6b7280' }}
+                      sx={{
+                        color: '#6b7280',
+                        opacity: 0,
+                        transition: 'opacity 0.2s ease-in-out',
+                        '&:hover': {
+                          color: '#ef4444',
+                          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        },
+                        '.MuiListItemButton-root:hover &': {
+                          opacity: 1,
+                        },
+                      }}
                     >
-                      <DeleteIcon fontSize="small" />
+                      <DeleteIcon sx={{ fontSize: 18 }} />
                     </IconButton>
                   </ListItemButton>
                 ))}
               </List>
             </Box>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={() => setIsCreateModalOpen(true)}
-              sx={{
-                backgroundColor: '#3b82f6',
-                '&:hover': {
-                  backgroundColor: '#2563eb',
-                },
-                mt: 2,
-              }}
-            >
-              Add Dashboard
-            </Button>
           </Box>
         );
       case 'analytics':
