@@ -275,18 +275,49 @@ export default function Home() {
                 justifyContent: 'center',
                 px: 1,
                 py: 1.5,
+                backgroundColor: 'transparent',
+                '&.Mui-selected': {
+                  backgroundColor: 'transparent',
+                },
+                '&:hover:not(.Mui-selected)': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                },
               }}
             >
-              <ListItemIcon
+              <Box
                 sx={{
-                  minWidth: 0,
+                  position: 'relative',
+                  display: 'flex',
                   justifyContent: 'center',
                   mb: 0.5,
-                  color: selectedItem === item.id ? '#ffffff' : '#6b7280',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    backgroundColor: selectedItem === item.id 
+                      ? 'rgba(255, 255, 255, 0.05)'
+                      : 'transparent',
+                    transition: 'background-color 0.2s ease-in-out',
+                  },
                 }}
               >
-                {item.icon}
-              </ListItemIcon>
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    justifyContent: 'center',
+                    color: selectedItem === item.id ? '#ffffff' : '#6b7280',
+                    position: 'relative',
+                    zIndex: 1,
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+              </Box>
               <Typography
                 variant="caption"
                 sx={{
