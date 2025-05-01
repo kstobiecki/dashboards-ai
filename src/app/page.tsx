@@ -110,6 +110,7 @@ export default function Home() {
                   minWidth: 0,
                   justifyContent: 'center',
                   mb: 0.5,
+                  color: selectedItem === item.id ? '#ffffff' : '#6b7280',
                 }}
               >
                 {item.icon}
@@ -120,7 +121,7 @@ export default function Home() {
                   fontSize: '0.65rem',
                   textAlign: 'center',
                   lineHeight: 1,
-                  color: selectedItem === item.id ? 'primary.main' : 'text.secondary',
+                  color: selectedItem === item.id ? '#ffffff' : '#6b7280',
                 }}
               >
                 {item.text}
@@ -134,6 +135,7 @@ export default function Home() {
       <CollapsibleHeader 
         isVisible={isDrawerVisible} 
         onVisibilityChange={handleDrawerVisibilityChange}
+        selectedItem={selectedItem}
       />
 
       {/* Main Content */}

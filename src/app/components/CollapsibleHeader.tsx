@@ -7,9 +7,10 @@ import AddIcon from '@mui/icons-material/Add';
 interface CollapsibleHeaderProps {
   isVisible: boolean;
   onVisibilityChange: (visible: boolean) => void;
+  selectedItem: string;
 }
 
-export function CollapsibleHeader({ isVisible, onVisibilityChange }: CollapsibleHeaderProps) {
+export function CollapsibleHeader({ isVisible, onVisibilityChange, selectedItem }: CollapsibleHeaderProps) {
   const [mouseX, setMouseX] = useState(0);
   const [isHoveringLeft, setIsHoveringLeft] = useState(false);
   const drawerWidth = 250;
@@ -38,6 +39,51 @@ export function CollapsibleHeader({ isVisible, onVisibilityChange }: Collapsible
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [isVisible, onVisibilityChange, drawerWidth, menuWidth]);
 
+  const getDrawerContent = () => {
+    switch (selectedItem) {
+      case 'dashboard':
+        return (
+          <>
+            <Typography variant="h6" component="div" sx={{ mb: 3, color: '#e5e7eb' }}>
+              DashboardsAI
+            </Typography>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              sx={{
+                backgroundColor: '#3b82f6',
+                '&:hover': {
+                  backgroundColor: '#2563eb',
+                },
+              }}
+            >
+              Add Tile
+            </Button>
+          </>
+        );
+      case 'analytics':
+        return (
+          <Typography variant="h6" component="div" sx={{ mb: 3, color: '#e5e7eb' }}>
+            Analytics Overview
+          </Typography>
+        );
+      case 'users':
+        return (
+          <Typography variant="h6" component="div" sx={{ mb: 3, color: '#e5e7eb' }}>
+            User Management
+          </Typography>
+        );
+      case 'settings':
+        return (
+          <Typography variant="h6" component="div" sx={{ mb: 3, color: '#e5e7eb' }}>
+            Settings & Preferences
+          </Typography>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -57,21 +103,7 @@ export function CollapsibleHeader({ isVisible, onVisibilityChange }: Collapsible
         pointerEvents: isVisible ? 'auto' : 'none',
       }}
     >
-      <Typography variant="h6" component="div" sx={{ mb: 3 }}>
-        DashboardsAI
-      </Typography>
-      <Button
-        variant="contained"
-        startIcon={<AddIcon />}
-        sx={{
-          backgroundColor: '#3b82f6',
-          '&:hover': {
-            backgroundColor: '#2563eb',
-          },
-        }}
-      >
-        Add Tile
-      </Button>
+      {getDrawerContent()}
     </Box>
   );
 } 
