@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -8,9 +8,10 @@ interface CollapsibleHeaderProps {
   isVisible: boolean;
   onVisibilityChange: (visible: boolean) => void;
   selectedItem: string;
+  children: ReactNode;
 }
 
-export function CollapsibleHeader({ isVisible, onVisibilityChange, selectedItem }: CollapsibleHeaderProps) {
+export function CollapsibleHeader({ isVisible, onVisibilityChange, selectedItem, children }: CollapsibleHeaderProps) {
   const [mouseX, setMouseX] = useState(0);
   const [isHoveringLeft, setIsHoveringLeft] = useState(false);
   const drawerWidth = 250;
@@ -103,7 +104,7 @@ export function CollapsibleHeader({ isVisible, onVisibilityChange, selectedItem 
         pointerEvents: isVisible ? 'auto' : 'none',
       }}
     >
-      {getDrawerContent()}
+      {children}
     </Box>
   );
 } 
