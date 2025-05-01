@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import {
   Box,
-  Drawer,
   List,
   ListItemButton,
   ListItemIcon,
@@ -11,76 +10,86 @@ import {
   Typography,
   IconButton,
   useTheme,
-  useMediaQuery,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
   Settings as SettingsIcon,
   People as PeopleIcon,
   BarChart as BarChartIcon,
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
+import { CollapsibleHeader } from './components/CollapsibleHeader';
+import Image from 'next/image';
 
-const drawerWidth = 240;
-const collapsedDrawerWidth = 64;
+const menuWidth = 69;
+const drawerWidth = 250;
 
 export default function Home() {
-  const [open, setOpen] = useState(true);
   const [selectedItem, setSelectedItem] = useState('dashboard');
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const menuItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, id: 'dashboard' },
+    { text: 'Dashboards', icon: <DashboardIcon />, id: 'dashboard' },
     { text: 'Analytics', icon: <BarChartIcon />, id: 'analytics' },
     { text: 'Users', icon: <PeopleIcon />, id: 'users' },
     { text: 'Settings', icon: <SettingsIcon />, id: 'settings' },
   ];
 
-  const handleDrawerToggle = () => {
-    setOpen(!open);
+  const handleDrawerVisibilityChange = (visible: boolean) => {
+    setIsDrawerVisible(visible);
+  };
+
+  const handleLogoClick = () => {
+    setSelectedItem('dashboard');
   };
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      <Drawer
-        variant={isMobile ? 'temporary' : 'permanent'}
-        open={open}
-        onClose={handleDrawerToggle}
+      {/* Left Menu */}
+      <Box
         sx={{
-          width: drawerWidth,
+          width: menuWidth,
           flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: drawerWidth,
-            boxSizing: 'border-box',
-            transition: theme.transitions.create('width', {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.enteringScreen,
-            }),
-            ...(!open && {
-              width: collapsedDrawerWidth,
-              transition: theme.transitions.create('width', {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.leavingScreen,
-              }),
-              overflowX: 'hidden',
-            }),
-          },
+          backgroundColor: '#1f1f23',
+          borderRight: '1px solid #27272a',
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100vh',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          zIndex: 1001,
         }}
       >
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'space-between',
-          p: 2,
-          borderBottom: '1px solid #27272a',
-          minHeight: 64,
-        }}>
-          {open && <Typography variant="h6" component="div">DashboardsAI</Typography>}
-          <IconButton onClick={handleDrawerToggle}>
-            {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-          </IconButton>
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            p: 2,
+            borderBottom: '1px solid #27272a',
+            minHeight: 64,
+            cursor: 'pointer',
+          }}
+          onClick={handleLogoClick}
+        >
+          <Box
+            sx={{
+              width: 32,
+              height: 32,
+              borderRadius: '50%',
+              overflow: 'hidden',
+              position: 'relative',
+            }}
+          >
+            <Image
+              src="/assets/logos/main.png"
+              alt="DashboardsAI Logo"
+              fill
+              style={{ objectFit: 'cover' }}
+              priority
+            />
+          </Box>
         </Box>
         <List>
           {menuItems.map((item) => (
@@ -90,24 +99,44 @@ export default function Home() {
               onClick={() => setSelectedItem(item.id)}
               sx={{
                 minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
+                flexDirection: 'column',
+                justifyContent: 'center',
+                px: 1,
+                py: 1.5,
               }}
             >
               <ListItemIcon
                 sx={{
                   minWidth: 0,
-                  mr: open ? 3 : 'auto',
                   justifyContent: 'center',
+                  mb: 0.5,
                 }}
               >
                 {item.icon}
               </ListItemIcon>
-              {open && <ListItemText primary={item.text} />}
+              <Typography
+                variant="caption"
+                sx={{
+                  fontSize: '0.65rem',
+                  textAlign: 'center',
+                  lineHeight: 1,
+                  color: selectedItem === item.id ? 'primary.main' : 'text.secondary',
+                }}
+              >
+                {item.text}
+              </Typography>
             </ListItemButton>
           ))}
         </List>
-      </Drawer>
+      </Box>
+
+      {/* Collapsible Drawer */}
+      <CollapsibleHeader 
+        isVisible={isDrawerVisible} 
+        onVisibilityChange={handleDrawerVisibilityChange}
+      />
+
+      {/* Main Content */}
       <Box
         component="main"
         sx={{
@@ -115,14 +144,14 @@ export default function Home() {
           p: 3,
           backgroundColor: '#18181b',
           minHeight: '100vh',
-          transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
-          marginLeft: open ? 0 : `-${drawerWidth - collapsedDrawerWidth}px`,
+          marginLeft: `${menuWidth}px`,
+          width: `calc(100% - ${menuWidth}px)`,
+          position: 'relative',
         }}
       >
-        {/* Main content will go here */}
+        <Box sx={{ mt: 0 }}>
+          {/* Main content will go here */}
+        </Box>
       </Box>
     </Box>
   );
