@@ -1,18 +1,13 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { Providers } from "./providers";
 import "./globals.css";
+import { Providers } from "./providers";
 
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-  variable: "--font-inter",
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "DashboardsAI",
-  description: "A modern dashboard application",
+  title: "Dashboards AI",
+  description: "AI-powered dashboards",
 };
 
 export default function RootLayout({
@@ -21,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en">
       <body className={inter.className}>
         <Providers>{children}</Providers>
       </body>

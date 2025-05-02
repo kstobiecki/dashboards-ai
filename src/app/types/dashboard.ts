@@ -2,7 +2,7 @@ export interface Dashboard {
   id: string;
   title: string;
   description: string;
-  createdAt: Date;
+  createdAt: string;
 }
 
 export interface CreateDashboardModalProps {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   List,
@@ -37,7 +37,12 @@ export default function Home() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [dashboardToDelete, setDashboardToDelete] = useState<Dashboard | null>(null);
+  const [mounted, setMounted] = useState(false);
   const theme = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const menuItems = [
     { text: 'Dashboards', icon: <DashboardIcon />, id: 'dashboard' },
@@ -70,7 +75,7 @@ export default function Home() {
       id: generateId(),
       title,
       description,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     };
     setDashboards([...dashboards, newDashboard]);
     setSelectedDashboard(newDashboard);
@@ -218,155 +223,161 @@ export default function Home() {
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       {/* Left Menu */}
-      <Box
-        sx={{
-          width: menuWidth,
-          flexShrink: 0,
-          backgroundColor: '#1f1f23',
-          borderRight: '1px solid #27272a',
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100vh',
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          zIndex: 1001,
-        }}
-      >
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            p: 2,
-            borderBottom: '1px solid #27272a',
-            minHeight: 64,
-            cursor: 'pointer',
+      {mounted && (
+        <Box
+          sx={{
+            width: menuWidth,
+            flexShrink: 0,
+            backgroundColor: '#1f1f23',
+            borderRight: '1px solid #27272a',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100vh',
+            position: 'fixed',
+            left: 0,
+            top: 0,
+            zIndex: 1001,
           }}
-          onClick={handleLogoClick}
         >
-          <Box
-            sx={{
-              width: 32,
-              height: 32,
-              borderRadius: '50%',
-              overflow: 'hidden',
-              position: 'relative',
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              p: 2,
+              borderBottom: '1px solid #27272a',
+              minHeight: 64,
+              cursor: 'pointer',
             }}
+            onClick={handleLogoClick}
           >
-            <Image
-              src="/assets/logos/main.png"
-              alt="DashboardsAI Logo"
-              fill
-              style={{ objectFit: 'cover' }}
-              priority
-            />
-          </Box>
-        </Box>
-        <List>
-          {menuItems.map((item) => (
-            <ListItemButton
-              key={item.id}
-              selected={selectedItem === item.id}
-              onClick={() => setSelectedItem(item.id)}
+            <Box
               sx={{
-                minHeight: 48,
-                flexDirection: 'column',
-                justifyContent: 'center',
-                px: 1,
-                py: 1.5,
-                backgroundColor: 'transparent',
-                '&.Mui-selected': {
-                  backgroundColor: 'transparent',
-                },
-                '&:hover:not(.Mui-selected)': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                },
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                overflow: 'hidden',
+                position: 'relative',
               }}
             >
-              <Box
+              <Image
+                src="/assets/logos/main.png"
+                alt="DashboardsAI Logo"
+                fill
+                style={{ objectFit: 'cover' }}
+                priority
+              />
+            </Box>
+          </Box>
+          <List>
+            {menuItems.map((item) => (
+              <ListItemButton
+                key={item.id}
+                selected={selectedItem === item.id}
+                onClick={() => setSelectedItem(item.id)}
                 sx={{
-                  position: 'relative',
-                  display: 'flex',
+                  minHeight: 48,
+                  flexDirection: 'column',
                   justifyContent: 'center',
-                  mb: 0.5,
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50%',
-                    backgroundColor: selectedItem === item.id 
-                      ? 'rgba(255, 255, 255, 0.05)'
-                      : 'transparent',
-                    transition: 'background-color 0.2s ease-in-out',
+                  px: 1,
+                  py: 1.5,
+                  backgroundColor: 'transparent',
+                  '&.Mui-selected': {
+                    backgroundColor: 'transparent',
+                  },
+                  '&:hover:not(.Mui-selected)': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
                   },
                 }}
               >
-                <ListItemIcon
+                <Box
                   sx={{
-                    minWidth: 0,
-                    justifyContent: 'center',
-                    color: selectedItem === item.id ? '#ffffff' : '#6b7280',
                     position: 'relative',
-                    zIndex: 1,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    mb: 0.5,
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: 32,
+                      height: 32,
+                      borderRadius: '50%',
+                      backgroundColor: selectedItem === item.id 
+                        ? 'rgba(255, 255, 255, 0.05)'
+                        : 'transparent',
+                      transition: 'background-color 0.2s ease-in-out',
+                    },
                   }}
                 >
-                  {item.icon}
-                </ListItemIcon>
-              </Box>
-              <Typography
-                variant="caption"
-                sx={{
-                  fontSize: '0.65rem',
-                  textAlign: 'center',
-                  lineHeight: 1,
-                  color: selectedItem === item.id ? '#ffffff' : '#6b7280',
-                }}
-              >
-                {item.text}
-              </Typography>
-            </ListItemButton>
-          ))}
-        </List>
-      </Box>
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      justifyContent: 'center',
+                      color: selectedItem === item.id ? '#ffffff' : '#6b7280',
+                      position: 'relative',
+                      zIndex: 1,
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+                </Box>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontSize: '0.65rem',
+                    textAlign: 'center',
+                    lineHeight: 1,
+                    color: selectedItem === item.id ? '#ffffff' : '#6b7280',
+                  }}
+                >
+                  {item.text}
+                </Typography>
+              </ListItemButton>
+            ))}
+          </List>
+        </Box>
+      )}
 
       {/* Collapsible Drawer */}
-      <CollapsibleHeader 
-        isVisible={isDrawerVisible} 
-        onVisibilityChange={handleDrawerVisibilityChange}
-        selectedItem={selectedItem}
-      >
-        {getDrawerContent()}
-      </CollapsibleHeader>
+      {mounted && (
+        <CollapsibleHeader 
+          isVisible={isDrawerVisible} 
+          onVisibilityChange={handleDrawerVisibilityChange}
+          selectedItem={selectedItem}
+        >
+          {getDrawerContent()}
+        </CollapsibleHeader>
+      )}
 
       {/* Main Content */}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          backgroundColor: '#18181b',
-          minHeight: '100vh',
-          marginLeft: `${menuWidth}px`,
-          width: `calc(100% - ${menuWidth}px)`,
-          position: 'relative',
-        }}
-      >
-        {selectedItem === 'dashboard' && selectedDashboard && (
-          <Box>
-            <Typography variant="h4" sx={{ color: '#e5e7eb', mb: 2 }}>
-              {selectedDashboard.title}
-            </Typography>
-            <Typography sx={{ color: '#6b7280' }}>
-              {selectedDashboard.description}
-            </Typography>
-          </Box>
-        )}
-      </Box>
+      {mounted && (
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            p: 3,
+            backgroundColor: '#18181b',
+            minHeight: '100vh',
+            marginLeft: `${menuWidth}px`,
+            width: `calc(100% - ${menuWidth}px)`,
+            position: 'relative',
+          }}
+        >
+          {selectedItem === 'dashboard' && selectedDashboard && (
+            <Box>
+              <Typography variant="h4" sx={{ color: '#e5e7eb', mb: 2 }}>
+                {selectedDashboard.title}
+              </Typography>
+              <Typography sx={{ color: '#6b7280' }}>
+                {selectedDashboard.description}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      )}
 
       {/* Modals */}
       <CreateDashboardModal

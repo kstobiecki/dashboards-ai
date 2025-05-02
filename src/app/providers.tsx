@@ -1,11 +1,16 @@
 'use client';
 
-import { ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { theme } from './theme';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import { useMemo } from 'react';
+
+const theme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+});
 
 // Create a cache instance
 const createEmotionCache = () => {
