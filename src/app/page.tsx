@@ -366,6 +366,25 @@ export default function Home() {
             position: 'relative',
           }}
         >
+          {selectedItem === 'dashboard' && !selectedDashboard ? (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+                minHeight: 'calc(100vh - 48px)',
+              }}
+            >
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setIsCreateModalOpen(true)}
+              >
+                Create Dashboard
+              </Button>
+            </Box>
+          ) : null}
           {selectedItem === 'dashboard' && selectedDashboard && (
             <Box>
               <Typography variant="h4" sx={{ color: '#e5e7eb', mb: 2 }}>
