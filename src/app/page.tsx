@@ -380,6 +380,16 @@ export default function Home() {
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={() => setIsCreateModalOpen(true)}
+                sx={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#e5e7eb',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  },
+                  '& .MuiSvgIcon-root': {
+                    color: '#6b7280',
+                  },
+                }}
               >
                 Create Dashboard
               </Button>
