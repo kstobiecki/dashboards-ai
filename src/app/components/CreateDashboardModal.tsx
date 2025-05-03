@@ -27,7 +27,13 @@ export function CreateDashboardModal({ open, onClose, onCreate }: CreateDashboar
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth
+      PaperProps={{
+        sx: {
+          backgroundColor: '#000000',
+        }
+      }}
+    >
       <DialogTitle sx={{ color: '#e5e7eb' }}>Create New Dashboard</DialogTitle>
       <DialogContent>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
@@ -40,6 +46,7 @@ export function CreateDashboardModal({ open, onClose, onCreate }: CreateDashboar
             sx={{
               '& .MuiInputBase-root': {
                 color: '#e5e7eb',
+                backgroundColor: '#232326',
               },
               '& .MuiInputLabel-root': {
                 color: '#6b7280',
@@ -49,7 +56,10 @@ export function CreateDashboardModal({ open, onClose, onCreate }: CreateDashboar
                   borderColor: '#27272a',
                 },
                 '&:hover fieldset': {
-                  borderColor: '#3b82f6',
+                  borderColor: '#44444a',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#44444a',
                 },
               },
             }}
@@ -64,6 +74,7 @@ export function CreateDashboardModal({ open, onClose, onCreate }: CreateDashboar
             sx={{
               '& .MuiInputBase-root': {
                 color: '#e5e7eb',
+                backgroundColor: '#232326',
               },
               '& .MuiInputLabel-root': {
                 color: '#6b7280',
@@ -73,7 +84,10 @@ export function CreateDashboardModal({ open, onClose, onCreate }: CreateDashboar
                   borderColor: '#27272a',
                 },
                 '&:hover fieldset': {
-                  borderColor: '#3b82f6',
+                  borderColor: '#44444a',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#44444a',
                 },
               },
             }}
@@ -89,9 +103,16 @@ export function CreateDashboardModal({ open, onClose, onCreate }: CreateDashboar
           variant="contained"
           disabled={!title.trim()}
           sx={{
-            backgroundColor: '#3b82f6',
+            backgroundColor: '#232326',
+            color: '#e5e7eb',
+            fontWeight: 600,
             '&:hover': {
-              backgroundColor: '#2563eb',
+              backgroundColor: '#44444a',
+              color: '#fff',
+            },
+            '&.Mui-disabled': {
+              backgroundColor: '#232326',
+              color: '#6b7280',
             },
           }}
         >
