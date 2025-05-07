@@ -10,7 +10,6 @@ import {
   Typography,
   IconButton,
   useTheme,
-  Button,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -18,11 +17,12 @@ import {
   People as PeopleIcon,
   BarChart as BarChartIcon,
   Add as AddIcon,
-  Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { CollapsibleHeader } from './components/CollapsibleHeader';
-import { CreateDashboardModal } from './components/CreateDashboardModal';
-import { DeleteDashboardModal } from './components/DeleteDashboardModal';
+import { CreateDashboardModal } from './dashboard/modals/CreateDashboardModal';
+import { DeleteDashboardModal } from './dashboard/modals/DeleteDashboardModal';
+import { DashboardList } from './dashboard/DashboardList';
+import { DashboardContent } from './dashboard/DashboardContent';
 import Image from 'next/image';
 import { Dashboard } from './types/dashboard';
 
@@ -97,7 +97,6 @@ export default function Home() {
       case 'dashboard':
         return (
           <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', p: 0 }}>
-            {/* Add Dashboard Button */}
             <Box sx={{ 
               display: 'flex',
               justifyContent: 'flex-end',
@@ -126,75 +125,15 @@ export default function Home() {
                 <AddIcon />
               </IconButton>
             </Box>
-
-            {/* Dashboards List */}
-            <Box sx={{ flexGrow: 1, overflow: 'auto', p: 0 }}>
-              <List sx={{ p: 0, m: 0, '& > .MuiListItemButton-root': { mb: 1 } }}>
-                {dashboards.map((dashboard) => (
-                  <ListItemButton
-                    key={dashboard.id}
-                    selected={selectedDashboard?.id === dashboard.id}
-                    onClick={() => setSelectedDashboard(dashboard)}
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      height: 30,
-                      p: 0,
-                      pl: 3,
-                      pr: 1,
-                      m: 0,
-                      borderRadius: '20px',
-                      '&.Mui-selected': {
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        '&:hover': {
-                          backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                        },
-                      },
-                      '&:hover': {
-                        backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                      },
-                    }}
-                  >
-                    <Typography 
-                      sx={{ 
-                        color: selectedDashboard?.id === dashboard.id ? '#ffffff' : '#6b7280',
-                        fontSize: '0.875rem',
-                        fontWeight: selectedDashboard?.id === dashboard.id ? 500 : 400,
-                        maxWidth: '180px',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {dashboard.title}
-                    </Typography>
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDashboardToDelete(dashboard);
-                        setIsDeleteModalOpen(true);
-                      }}
-                      sx={{
-                        color: '#6b7280',
-                        opacity: 0,
-                        transition: 'opacity 0.2s ease-in-out',
-                        '&:hover': {
-                          color: '#ef4444',
-                          backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        },
-                        '.MuiListItemButton-root:hover &': {
-                          opacity: 1,
-                        },
-                      }}
-                    >
-                      <DeleteIcon sx={{ fontSize: 18 }} />
-                    </IconButton>
-                  </ListItemButton>
-                ))}
-              </List>
-            </Box>
+            <DashboardList
+              dashboards={dashboards}
+              selectedDashboard={selectedDashboard}
+              onDashboardSelect={setSelectedDashboard}
+              onDashboardDelete={(dashboard) => {
+                setDashboardToDelete(dashboard);
+                setIsDeleteModalOpen(true);
+              }}
+            />
           </Box>
         );
       case 'analytics':
@@ -367,110 +306,12 @@ export default function Home() {
           }}
         >
           {selectedItem === 'dashboard' && (
-            <>
-              {!selectedDashboard && (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minHeight: '100vh',
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: '33vw',
-                      minWidth: 260,
-                      maxWidth: 480,
-                      mb: 1,
-                      display: dashboards.length === 2 || dashboards.length === 3 ? 'flex' : 'block',
-                      flexDirection: 'row',
-                      gap: 2,
-                    }}
-                  >
-                    {dashboards.slice(0, 3).map((dashboard) => (
-                      <Box
-                        key={dashboard.id}
-                        sx={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                          borderRadius: 1,
-                          p: 2,
-                          cursor: 'pointer',
-                          width:
-                            dashboards.length === 1
-                              ? '100%'
-                              : dashboards.length === 2
-                              ? '48%'
-                              : dashboards.length === 3
-                              ? '30%'
-                              : '100%',
-                          height: '260px',
-                          '&:hover': {
-                            backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                          },
-                        }}
-                        onClick={() => setSelectedDashboard(dashboard)}
-                      >
-                        <Typography variant="h6" sx={{ color: '#e5e7eb', mb: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {dashboard.title}
-                        </Typography>
-                        <Typography sx={{
-                          color: '#6b7280',
-                          fontSize: '0.875rem',
-                          overflow: 'hidden',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 9,
-                          WebkitBoxOrient: 'vertical',
-                          textOverflow: 'ellipsis',
-                        }}>
-                          {dashboard.description}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </Box>
-
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      height: 'auto',
-                      minHeight: 'unset',
-                    }}
-                  >
-                    <Button
-                      variant="contained"
-                      startIcon={<AddIcon />}
-                      onClick={() => setIsCreateModalOpen(true)}
-                      sx={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                        color: '#e5e7eb',
-                        '&:hover': {
-                          backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                        },
-                        '& .MuiSvgIcon-root': {
-                          color: '#6b7280',
-                        },
-                      }}
-                    >
-                      Create Dashboard
-                    </Button>
-                  </Box>
-                </Box>
-              )}
-
-              {selectedDashboard && (
-                <Box>
-                  <Typography variant="h4" sx={{ color: '#e5e7eb', mb: 2 }}>
-                    {selectedDashboard.title}
-                  </Typography>
-                  <Typography sx={{ color: '#6b7280' }}>
-                    {selectedDashboard.description}
-                  </Typography>
-                </Box>
-              )}
-            </>
+            <DashboardContent
+              dashboards={dashboards}
+              selectedDashboard={selectedDashboard}
+              onDashboardSelect={setSelectedDashboard}
+              onCreateDashboard={() => setIsCreateModalOpen(true)}
+            />
           )}
         </Box>
       )}
