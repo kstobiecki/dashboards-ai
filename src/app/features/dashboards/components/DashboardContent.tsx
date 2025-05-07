@@ -109,7 +109,7 @@ export const DashboardContent = () => {
   }
 
   return (
-    <Box>
+    <Box sx={{ minHeight: '100vh' }}>
       <Typography variant="h4" sx={{ color: '#e5e7eb', mb: 2 }}>
         {selectedDashboard.title}
       </Typography>

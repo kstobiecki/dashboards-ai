@@ -14,6 +14,7 @@ export const MainPanel = ({ selectedItem, menuWidth = 69 }: MainPanelProps) => (
             flexGrow: 1,
             p: 3,
             backgroundColor: '#18181b',
+            padding: 0,
             minHeight: '100vh',
             marginLeft: `${menuWidth}px`,
             width: `calc(100% - ${menuWidth}px)`,
