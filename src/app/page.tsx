@@ -7,19 +7,16 @@ import {
   ListItemButton,
   ListItemIcon,
   Typography,
-  IconButton,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
   Settings as SettingsIcon,
   People as PeopleIcon,
   BarChart as BarChartIcon,
-  Add as AddIcon,
 } from '@mui/icons-material';
-import { CollapsibleHeader } from './components/CollapsibleHeader';
-import { CreateDashboardModal } from './dashboard/modals/CreateDashboardModal';
-import { DeleteDashboardModal } from './dashboard/modals/DeleteDashboardModal';
-import { DashboardList } from './dashboard/DashboardList';
+import { Drawer } from './components/Drawer';
+import { CreateDashboardModal } from './components/CreateDashboardModal';
+import { DeleteDashboardModal } from './components/DeleteDashboardModal';
 import { DashboardContent } from './dashboard/DashboardContent';
 import Image from 'next/image';
 import { Dashboard } from './types/dashboard';
@@ -55,7 +52,6 @@ export default function Home() {
     setSelectedItem('dashboard');
   };
 
-
   const generateId = () => {
     return `dashboard-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   };
@@ -79,73 +75,6 @@ export default function Home() {
       }
       setDashboardToDelete(null);
       setIsDeleteModalOpen(false);
-    }
-  };
-
-  const getDrawerContent = () => {
-    switch (selectedItem) {
-      case 'dashboard':
-        return (
-          <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', p: 0 }}>
-            <Box sx={{ 
-              display: 'flex',
-              justifyContent: 'flex-end',
-              p: 2,
-              pr: 0,
-            }}>
-              <IconButton
-                onClick={() => setIsCreateModalOpen(true)}
-                sx={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  width: 40,
-                  height: 40,
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    '& .MuiSvgIcon-root': {
-                      color: '#ffffff',
-                      transform: 'rotate(90deg)',
-                    },
-                  },
-                  '& .MuiSvgIcon-root': {
-                    color: '#6b7280',
-                    transition: 'all 0.2s ease-in-out',
-                  },
-                }}
-              >
-                <AddIcon />
-              </IconButton>
-            </Box>
-            <DashboardList
-              dashboards={dashboards}
-              selectedDashboard={selectedDashboard}
-              onDashboardSelect={setSelectedDashboard}
-              onDashboardDelete={(dashboard) => {
-                setDashboardToDelete(dashboard);
-                setIsDeleteModalOpen(true);
-              }}
-            />
-          </Box>
-        );
-      case 'analytics':
-        return (
-          <Typography variant="h6" component="div" sx={{ mb: 3, color: '#e5e7eb' }}>
-            Analytics Overview
-          </Typography>
-        );
-      case 'users':
-        return (
-          <Typography variant="h6" component="div" sx={{ mb: 3, color: '#e5e7eb' }}>
-            User Management
-          </Typography>
-        );
-      case 'settings':
-        return (
-          <Typography variant="h6" component="div" sx={{ mb: 3, color: '#e5e7eb' }}>
-            Settings & Preferences
-          </Typography>
-        );
-      default:
-        return null;
     }
   };
 
@@ -270,15 +199,21 @@ export default function Home() {
         </Box>
       )}
 
-      {/* Collapsible Drawer */}
+      {/* Drawer */}
       {mounted && (
-        <CollapsibleHeader 
+        <Drawer 
           isVisible={isDrawerVisible} 
           onVisibilityChange={handleDrawerVisibilityChange}
           selectedItem={selectedItem}
-        >
-          {getDrawerContent()}
-        </CollapsibleHeader>
+          dashboards={dashboards}
+          selectedDashboard={selectedDashboard}
+          onDashboardSelect={setSelectedDashboard}
+          onDashboardDelete={(dashboard) => {
+            setDashboardToDelete(dashboard);
+            setIsDeleteModalOpen(true);
+          }}
+          onCreateDashboard={() => setIsCreateModalOpen(true)}
+        />
       )}
 
       {/* Main Content */}
