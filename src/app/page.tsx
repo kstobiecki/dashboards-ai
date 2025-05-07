@@ -8,6 +8,7 @@ import { Drawer } from './layouts/Drawer';
 import { AppProviders } from './context/AppProviders';
 import { DashboardContent } from './features/dashboards/components/DashboardContent';
 import { LeftPanel } from './layouts/LeftPanel';
+import { MainPanel } from './layouts/MainPanel';
 
 const menuWidth = 69;
 
@@ -47,22 +48,10 @@ export default function Home() {
 
         {/* Main Content */}
         {mounted && (
-          <Box
-            component="main"
-            sx={{
-              flexGrow: 1,
-              p: 3,
-              backgroundColor: '#18181b',
-              minHeight: '100vh',
-              marginLeft: `${menuWidth}px`,
-              width: `calc(100% - ${menuWidth}px)`,
-              position: 'relative',
-            }}
-          >
-            {selectedItem === 'dashboard' && (
-              <DashboardContent />
-            )}
-          </Box>
+          <MainPanel
+            selectedItem={selectedItem}
+            menuWidth={menuWidth}
+          />
         )}
       </Box>
     </AppProviders>
