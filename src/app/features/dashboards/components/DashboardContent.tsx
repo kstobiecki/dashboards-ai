@@ -4,11 +4,25 @@ import { useDashboard } from '../context/DashboardContext';
 import { useState } from 'react';
 import { CreateDashboardModal } from './CreateDashboardModal';
 import { useDrag, useDrop } from 'react-dnd';
+import { ResizableBox } from 'react-resizable';
+import 'react-resizable/css/styles.css';
+
+// Custom styles for resize handles
+const resizeHandleStyles = {
+  position: 'absolute',
+  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  border: '1px solid rgba(255, 255, 255, 0.2)',
+  borderRadius: '2px',
+  '&:hover': {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+};
 
 export const DashboardContent = () => {
   const { dashboards, selectedDashboard, setSelectedDashboard, createDashboard } = useDashboard();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [size, setSize] = useState({ width: 300, height: 200 });
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'BOX',
@@ -139,8 +153,13 @@ export const DashboardContent = () => {
 
   return (
     <div ref={dropRef} style={{ minHeight: '100vh', position: 'relative', backgroundColor: '#18181b', padding: 24 }}>
-      <div
-        ref={dragRef}
+      <ResizableBox
+        width={size.width}
+        height={size.height}
+        onResizeStop={(e, { size: newSize }) => setSize(newSize)}
+        minConstraints={[200, 150]}
+        maxConstraints={[800, 600]}
+        resizeHandles={['se']}
         style={{
           position: 'absolute',
           left: position.x,
@@ -153,13 +172,31 @@ export const DashboardContent = () => {
           opacity: isDragging ? 0.5 : 1,
         }}
       >
-        <Typography variant="h4" sx={{ color: '#e5e7eb', mb: 2 }}>
-          {selectedDashboard.title}
-        </Typography>
-        <Typography sx={{ color: '#6b7280' }}>
-          {selectedDashboard.description}
-        </Typography>
-      </div>
+        <div ref={dragRef} style={{ height: '100%', width: '100%' }}>
+          <Typography variant="h4" sx={{ color: '#e5e7eb', mb: 2 }}>
+            {selectedDashboard.title}
+          </Typography>
+          <Typography sx={{ color: '#6b7280' }}>
+            {selectedDashboard.description}
+          </Typography>
+        </div>
+      </ResizableBox>
+
+      <style jsx global>{`
+        .react-resizable-handle {
+          background-color: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 2px;
+        }
+        .react-resizable-handle:hover {
+          background-color: rgba(255, 255, 255, 0.2);
+        }
+        .react-resizable-handle-se {
+          bottom: 0;
+          right: 0;
+          cursor: se-resize;
+        }
+      `}</style>
     </div>
   );
 }; 
