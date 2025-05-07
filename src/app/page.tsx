@@ -14,11 +14,10 @@ import {
   People as PeopleIcon,
   BarChart as BarChartIcon,
 } from '@mui/icons-material';
-import { DashboardList } from './dashboard/DashboardList';
 import { DashboardContent } from './dashboard/DashboardContent';
 import { Drawer } from './components/Drawer';
-import { DashboardProvider } from './context/DashboardContext';
 import Image from 'next/image';
+import { AppProviders } from './context/AppProviders';
 
 const menuWidth = 69;
 
@@ -47,7 +46,7 @@ export default function Home() {
   };
 
   return (
-    <DashboardProvider>
+    <AppProviders>
       <Box sx={{ display: 'flex', minHeight: '100vh' }}>
         {/* Left Menu */}
         {mounted && (
@@ -199,6 +198,6 @@ export default function Home() {
           </Box>
         )}
       </Box>
-    </DashboardProvider>
+    </AppProviders>
   );
 }
