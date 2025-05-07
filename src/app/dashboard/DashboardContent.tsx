@@ -1,20 +1,13 @@
 import { Box, Typography, Button } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
-import { Dashboard } from '../types/dashboard';
+import { useDashboard } from '../context/DashboardContext';
+import { useState } from 'react';
+import { CreateDashboardModal } from '../components/CreateDashboardModal';
 
-interface DashboardContentProps {
-  dashboards: Dashboard[];
-  selectedDashboard: Dashboard | null;
-  onDashboardSelect: (dashboard: Dashboard) => void;
-  onCreateDashboard: () => void;
-}
+export const DashboardContent = () => {
+  const { dashboards, selectedDashboard, setSelectedDashboard, createDashboard } = useDashboard();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-export const DashboardContent = ({
-  dashboards,
-  selectedDashboard,
-  onDashboardSelect,
-  onCreateDashboard,
-}: DashboardContentProps) => {
   if (!selectedDashboard) {
     return (
       <Box
@@ -58,7 +51,7 @@ export const DashboardContent = ({
                   backgroundColor: 'rgba(255, 255, 255, 0.08)',
                 },
               }}
-              onClick={() => onDashboardSelect(dashboard)}
+              onClick={() => setSelectedDashboard(dashboard)}
             >
               <Typography variant="h6" sx={{ color: '#e5e7eb', mb: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {dashboard.title}
@@ -90,7 +83,7 @@ export const DashboardContent = ({
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={onCreateDashboard}
+            onClick={() => setIsCreateModalOpen(true)}
             sx={{
               backgroundColor: 'rgba(255, 255, 255, 0.1)',
               color: '#e5e7eb',
@@ -105,6 +98,12 @@ export const DashboardContent = ({
             Create Dashboard
           </Button>
         </Box>
+
+        <CreateDashboardModal
+          open={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onCreate={createDashboard}
+        />
       </Box>
     );
   }

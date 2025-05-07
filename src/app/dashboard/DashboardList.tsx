@@ -1,20 +1,28 @@
-import { Box, List, ListItemButton, Typography, IconButton } from '@mui/material';
+import { Box, List, ListItemButton, Typography, IconButton, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
 import { Delete as DeleteIcon } from '@mui/icons-material';
+import { useDashboard } from '../context/DashboardContext';
+import { useState } from 'react';
 import { Dashboard } from '../types/dashboard';
 
-interface DashboardListProps {
-  dashboards: Dashboard[];
-  selectedDashboard: Dashboard | null;
-  onDashboardSelect: (dashboard: Dashboard) => void;
-  onDashboardDelete: (dashboard: Dashboard) => void;
-}
+export const DashboardList = () => {
+  const { dashboards, selectedDashboard, setSelectedDashboard, deleteDashboard } = useDashboard();
+  const [dashboardToDelete, setDashboardToDelete] = useState<Dashboard | null>(null);
 
-export const DashboardList = ({
-  dashboards,
-  selectedDashboard,
-  onDashboardSelect,
-  onDashboardDelete,
-}: DashboardListProps) => {
+  const handleDeleteClick = (dashboard: Dashboard) => {
+    setDashboardToDelete(dashboard);
+  };
+
+  const handleConfirmDelete = () => {
+    if (dashboardToDelete) {
+      deleteDashboard(dashboardToDelete);
+      setDashboardToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setDashboardToDelete(null);
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', p: 0 }}>
       <Box sx={{ flexGrow: 1, overflow: 'auto', p: 0 }}>
@@ -23,7 +31,7 @@ export const DashboardList = ({
             <ListItemButton
               key={dashboard.id}
               selected={selectedDashboard?.id === dashboard.id}
-              onClick={() => onDashboardSelect(dashboard)}
+              onClick={() => setSelectedDashboard(dashboard)}
               sx={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -62,7 +70,7 @@ export const DashboardList = ({
                 size="small"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onDashboardDelete(dashboard);
+                  handleDeleteClick(dashboard);
                 }}
                 sx={{
                   color: '#6b7280',
@@ -83,6 +91,22 @@ export const DashboardList = ({
           ))}
         </List>
       </Box>
+      <Dialog open={!!dashboardToDelete} onClose={handleCancelDelete}>
+        <DialogTitle>Delete Dashboard</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete the dashboard "{dashboardToDelete?.title}"? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelDelete} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDelete} color="error" autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }; 

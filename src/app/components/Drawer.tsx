@@ -1,34 +1,27 @@
 'use client';
 
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Typography, IconButton } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
-import { Dashboard } from '../types/dashboard';
 import { DashboardList } from '../dashboard/DashboardList';
+import { useDashboard } from '../context/DashboardContext';
+import { CreateDashboardModal } from './CreateDashboardModal';
 
 interface DrawerProps {
   isVisible: boolean;
   onVisibilityChange: (visible: boolean) => void;
   selectedItem: string;
-  dashboards: Dashboard[];
-  selectedDashboard: Dashboard | null;
-  onDashboardSelect: (dashboard: Dashboard) => void;
-  onDashboardDelete: (dashboard: Dashboard) => void;
-  onCreateDashboard: () => void;
 }
 
 export const Drawer = ({ 
   isVisible, 
   onVisibilityChange, 
   selectedItem,
-  dashboards,
-  selectedDashboard,
-  onDashboardSelect,
-  onDashboardDelete,
-  onCreateDashboard,
 }: DrawerProps) => {
+  const { dashboards, selectedDashboard, setSelectedDashboard, deleteDashboard, createDashboard } = useDashboard();
   const [mouseX, setMouseX] = useState(0);
   const [isHoveringLeft, setIsHoveringLeft] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const drawerWidth = 250;
   const menuWidth = 69;
 
@@ -67,7 +60,7 @@ export const Drawer = ({
               pr: 0,
             }}>
               <IconButton
-                onClick={onCreateDashboard}
+                onClick={() => setIsCreateModalOpen(true)}
                 sx={{
                   backgroundColor: 'rgba(255, 255, 255, 0.05)',
                   width: 40,
@@ -88,11 +81,11 @@ export const Drawer = ({
                 <AddIcon />
               </IconButton>
             </Box>
-            <DashboardList
-              dashboards={dashboards}
-              selectedDashboard={selectedDashboard}
-              onDashboardSelect={onDashboardSelect}
-              onDashboardDelete={onDashboardDelete}
+            <DashboardList />
+            <CreateDashboardModal
+              open={isCreateModalOpen}
+              onClose={() => setIsCreateModalOpen(false)}
+              onCreate={createDashboard}
             />
           </Box>
         );
