@@ -6,10 +6,8 @@ import {
   List,
   ListItemButton,
   ListItemIcon,
-  ListItemText,
   Typography,
   IconButton,
-  useTheme,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -27,7 +25,6 @@ import Image from 'next/image';
 import { Dashboard } from './types/dashboard';
 
 const menuWidth = 69;
-const drawerWidth = 280;
 
 export default function Home() {
   const [selectedItem, setSelectedItem] = useState('dashboard');
@@ -38,7 +35,6 @@ export default function Home() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [dashboardToDelete, setDashboardToDelete] = useState<Dashboard | null>(null);
   const [mounted, setMounted] = useState(false);
-  const theme = useTheme();
 
   useEffect(() => {
     setMounted(true);
@@ -59,12 +55,6 @@ export default function Home() {
     setSelectedItem('dashboard');
   };
 
-  const handleItemClick = (itemId: string) => {
-    setSelectedItem(itemId);
-    if (itemId === 'dashboard' && dashboards.length > 0) {
-      setSelectedDashboard(dashboards[0]);
-    }
-  };
 
   const generateId = () => {
     return `dashboard-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
