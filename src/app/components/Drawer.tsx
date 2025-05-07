@@ -18,27 +18,22 @@ export const Drawer = ({
   onVisibilityChange, 
   selectedItem,
 }: DrawerProps) => {
-  const { dashboards, selectedDashboard, setSelectedDashboard, deleteDashboard, createDashboard } = useDashboard();
-  const [mouseX, setMouseX] = useState(0);
-  const [isHoveringLeft, setIsHoveringLeft] = useState(false);
+  const { createDashboard } = useDashboard();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const drawerWidth = 250;
   const menuWidth = 69;
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMouseX(e.clientX);
       
       if (isVisible) {
         // When drawer is visible, hide it when cursor moves beyond menu + drawer width
         if (e.clientX > menuWidth + drawerWidth) {
-          setIsHoveringLeft(false);
           onVisibilityChange(false);
         }
       } else {
         // When drawer is hidden, show it only when cursor is over the menu
         if (e.clientX < menuWidth) {
-          setIsHoveringLeft(true);
           onVisibilityChange(true);
         }
       }
