@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography, IconButton } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
-import { DashboardList } from '../dashboard/DashboardList';
-import { useDashboard } from '../context/DashboardContext';
-import { CreateDashboardModal } from './CreateDashboardModal';
+import { useDashboard } from '../features/dashboards/context/DashboardContext';
+import { DashboardList } from '../features/dashboards/components/DashboardList';
+import { CreateDashboardModal } from '../features/dashboards/components/CreateDashboardModal';
 
 interface DrawerProps {
   isVisible: boolean;

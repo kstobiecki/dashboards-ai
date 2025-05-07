@@ -14,10 +14,10 @@ import {
   People as PeopleIcon,
   BarChart as BarChartIcon,
 } from '@mui/icons-material';
-import { DashboardContent } from './dashboard/DashboardContent';
-import { Drawer } from './components/Drawer';
+import { Drawer } from './layouts/Drawer';
 import Image from 'next/image';
 import { AppProviders } from './context/AppProviders';
+import { DashboardContent } from './features/dashboards/components/DashboardContent';
 
 const menuWidth = 69;
 

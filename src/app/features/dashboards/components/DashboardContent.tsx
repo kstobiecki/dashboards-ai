@@ -2,7 +2,7 @@ import { Box, Typography, Button } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useDashboard } from '../context/DashboardContext';
 import { useState } from 'react';
-import { CreateDashboardModal } from '../components/CreateDashboardModal';
+import { CreateDashboardModal } from './CreateDashboardModal';
 
 export const DashboardContent = () => {
   const { dashboards, selectedDashboard, setSelectedDashboard, createDashboard } = useDashboard();
