@@ -3,10 +3,32 @@ import { Add as AddIcon } from '@mui/icons-material';
 import { useDashboard } from '../context/DashboardContext';
 import { useState } from 'react';
 import { CreateDashboardModal } from './CreateDashboardModal';
+import { useDrag, useDrop } from 'react-dnd';
 
 export const DashboardContent = () => {
   const { dashboards, selectedDashboard, setSelectedDashboard, createDashboard } = useDashboard();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: 'BOX',
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  }));
+
+  const [, drop] = useDrop(() => ({
+    accept: 'BOX',
+    drop: (_, monitor) => {
+      const delta = monitor.getDifferenceFromInitialOffset();
+      if (delta) {
+        setPosition(prev => ({
+          x: prev.x + delta.x,
+          y: prev.y + delta.y,
+        }));
+      }
+    },
+  }));
 
   if (!selectedDashboard) {
     return (
@@ -27,7 +49,6 @@ export const DashboardContent = () => {
             mb: 1,
             display: dashboards.length === 2 || dashboards.length === 3 ? 'flex' : 'block',
             flexDirection: 'row',
-            gap: 2,
           }}
         >
           {dashboards.slice(0, 3).map((dashboard) => (
@@ -108,14 +129,37 @@ export const DashboardContent = () => {
     );
   }
 
+  const dropRef = (node: HTMLDivElement | null) => {
+    drop(node);
+  };
+
+  const dragRef = (node: HTMLDivElement | null) => {
+    drag(node);
+  };
+
   return (
-    <Box sx={{ minHeight: '100vh' }}>
-      <Typography variant="h4" sx={{ color: '#e5e7eb', mb: 2 }}>
-        {selectedDashboard.title}
-      </Typography>
-      <Typography sx={{ color: '#6b7280' }}>
-        {selectedDashboard.description}
-      </Typography>
-    </Box>
+    <div ref={dropRef} style={{ minHeight: '100vh', position: 'relative', backgroundColor: '#18181b', padding: 24 }}>
+      <div
+        ref={dragRef}
+        style={{
+          position: 'absolute',
+          left: position.x,
+          top: position.y,
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          borderRadius: 4,
+          padding: 16,
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          cursor: 'move',
+          opacity: isDragging ? 0.5 : 1,
+        }}
+      >
+        <Typography variant="h4" sx={{ color: '#e5e7eb', mb: 2 }}>
+          {selectedDashboard.title}
+        </Typography>
+        <Typography sx={{ color: '#6b7280' }}>
+          {selectedDashboard.description}
+        </Typography>
+      </div>
+    </div>
   );
 }; 
