@@ -183,10 +183,17 @@ export const DashboardContent = () => {
       </ResizableBox>
 
       <style jsx global>{`
+        .react-resizable {
+          padding: 0 !important;
+        }
+
         .react-resizable-handle {
           background-color: rgba(255, 255, 255, 0.1);
           border: 1px solid rgba(255, 255, 255, 0.2);
           border-radius: 2px;
+          padding: 0;
+          width: 10px;
+          height: 10px;
         }
         .react-resizable-handle:hover {
           background-color: rgba(255, 255, 255, 0.2);
