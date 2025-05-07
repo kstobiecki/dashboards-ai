@@ -8,20 +8,22 @@ import { DashboardList } from '../features/dashboards/components/DashboardList';
 import { CreateDashboardModal } from '../features/dashboards/components/CreateDashboardModal';
 
 interface DrawerProps {
-  isVisible: boolean;
-  onVisibilityChange: (visible: boolean) => void;
   selectedItem: string;
 }
 
 export const Drawer = ({ 
-  isVisible, 
-  onVisibilityChange, 
   selectedItem,
 }: DrawerProps) => {
   const { createDashboard } = useDashboard();
+
+  const [isVisible, setIsVisible] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const drawerWidth = 250;
   const menuWidth = 69;
+
+  const onVisibilityChange = (visible: boolean) => {
+    setIsVisible(visible);
+  };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
