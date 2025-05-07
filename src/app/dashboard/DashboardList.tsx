@@ -91,18 +91,32 @@ export const DashboardList = () => {
           ))}
         </List>
       </Box>
-      <Dialog open={!!dashboardToDelete} onClose={handleCancelDelete}>
-        <DialogTitle>Delete Dashboard</DialogTitle>
+      <Dialog 
+        open={!!dashboardToDelete} 
+        onClose={handleCancelDelete}
+        PaperProps={{
+          sx: {
+            backgroundColor: '#23232a',
+            color: '#e5e7eb',
+            borderRadius: 2,
+            boxShadow: 24,
+            minWidth: 340,
+          },
+        }}
+      >
+        <DialogTitle sx={{ color: '#fff', fontWeight: 600, fontSize: '1.2rem', background: 'none', pb: 0 }}>
+          Delete Dashboard
+        </DialogTitle>
         <DialogContent>
-          <DialogContentText>
+          <DialogContentText sx={{ color: '#bdbdbd', fontSize: '1rem' }}>
             Are you sure you want to delete the dashboard "{dashboardToDelete?.title}"? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancelDelete} color="primary">
+        <DialogActions sx={{ pb: 2, pr: 3 }}>
+          <Button onClick={handleCancelDelete} sx={{ color: '#bdbdbd' }}>
             Cancel
           </Button>
-          <Button onClick={handleConfirmDelete} color="error" autoFocus>
+          <Button onClick={handleConfirmDelete} sx={{ color: '#ef4444', fontWeight: 600 }} autoFocus>
             Delete
           </Button>
         </DialogActions>
