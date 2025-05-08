@@ -17,7 +17,7 @@ export const DashboardContent = () => {
   } = useDashboard();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  const [{ isOver }, drop] = useDrop(() => ({
+  const [, drop] = useDrop(() => ({
     accept: 'BOX',
     drop: (item: { id: string }, monitor) => {
       if (!selectedDashboard) return;
@@ -35,9 +35,6 @@ export const DashboardContent = () => {
       
       updateBox(selectedDashboard.id, item.id, newPosition);
     },
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-    }),
   }), [selectedDashboard, updateBox]);
 
   const dropRef = (node: HTMLDivElement | null) => {
