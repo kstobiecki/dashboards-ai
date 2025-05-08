@@ -85,12 +85,13 @@ export const DraggableResizableBox = ({
           left: position.x,
           top: position.y,
           backgroundColor: '#23232a',
-          borderRadius: 4,
+          borderRadius: '8px',
           padding: 0,
           border: '1px solid rgba(255, 255, 255, 0.1)',
           cursor: isEditMode && !isDeleting ? 'move' : 'default',
           opacity: isDragging ? 0.5 : 1,
           zIndex: isDragging ? 1000 : 1,
+          overflow: 'hidden',
         }}
       >
         <Box 
@@ -140,8 +141,7 @@ export const DraggableResizableBox = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 2,
-                zIndex: 3,
-                borderRadius: 4,
+                zIndex: 3
               }}
             >
               <Typography sx={{ color: '#e5e7eb', mb: 1 }}>
