@@ -85,6 +85,7 @@ export const DashboardContent = () => {
     createDashboard,
     addBox,
     updateBox,
+    deleteBox,
   } = useDashboard();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(true);
@@ -303,6 +304,9 @@ export const DashboardContent = () => {
           size={{ width: box.width, height: box.height }}
           onResize={(newSize) => {
             updateBox(selectedDashboard.id, box.id, newSize);
+          }}
+          onDelete={() => {
+            deleteBox(selectedDashboard.id, box.id);
           }}
           isEditMode={isEditMode}
         />
