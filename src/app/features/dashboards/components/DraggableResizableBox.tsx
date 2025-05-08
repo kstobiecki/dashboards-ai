@@ -48,7 +48,7 @@ export const DraggableResizableBox = ({
           position: 'absolute',
           left: position.x,
           top: position.y,
-          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          backgroundColor: '#23232a',
           borderRadius: 4,
           padding: 0,
           border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -77,6 +77,7 @@ export const DraggableResizableBox = ({
       <style jsx global>{`
         .react-resizable {
           padding: 0 !important;
+          border: 0 !important;
         }
 
         .react-resizable-handle {

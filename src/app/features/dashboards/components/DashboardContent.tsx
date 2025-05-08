@@ -88,6 +88,7 @@ export const DashboardContent = () => {
   } = useDashboard();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(true);
+  const [isHovering, setIsHovering] = useState(false);
 
   const [, drop] = useDrop(() => ({
     accept: 'BOX',
@@ -231,6 +232,8 @@ export const DashboardContent = () => {
     <div 
       ref={dropRef} 
       data-drop-container
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
       style={{ 
         minHeight: '100vh', 
         position: 'relative', 
@@ -240,14 +243,25 @@ export const DashboardContent = () => {
         height: '100%',
       }}
     >
-      <Box sx={{ position: 'absolute', top: 24, right: 24, display: 'flex', gap: 2 }}>
+      <Box 
+        sx={{ 
+          position: 'fixed',
+          top: 24,
+          right: 24,
+          display: 'flex',
+          gap: 2,
+          zIndex: 2000,
+        }}
+      >
         <IconButton
           onClick={() => setIsEditMode(!isEditMode)}
           sx={{
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            backgroundColor: '#23232a',
             color: '#e5e7eb',
+            transition: 'opacity 0.3s ease-in-out',
+            opacity: isEditMode ? 1 : (isHovering ? 1 : 0),
             '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              backgroundColor: '#2d2d35',
             },
           }}
         >
@@ -260,16 +274,16 @@ export const DashboardContent = () => {
             onClick={handleAddBox}
             disabled={selectedDashboard.boxes.length >= 20}
             sx={{
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              backgroundColor: '#23232a',
               color: '#e5e7eb',
               '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                backgroundColor: '#2d2d35',
               },
               '& .MuiSvgIcon-root': {
                 color: '#6b7280',
               },
               '&.Mui-disabled': {
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                backgroundColor: '#1a1a1d',
                 color: 'rgba(255, 255, 255, 0.3)',
               },
             }}
