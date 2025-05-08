@@ -61,8 +61,9 @@ export const DashboardContent = () => {
             minWidth: 260,
             maxWidth: 480,
             mb: 1,
-            display: dashboards.length === 2 || dashboards.length === 3 ? 'flex' : 'block',
+            display: dashboards.length > 1 ? 'flex' : 'block',
             flexDirection: 'row',
+            gap: 2,
           }}
         >
           {dashboards.slice(0, 3).map((dashboard) => (
