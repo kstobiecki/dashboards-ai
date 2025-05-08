@@ -141,7 +141,17 @@ export const DraggableResizableBox = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 2,
-                zIndex: 3
+                zIndex: 3,
+                opacity: 0,
+                animation: 'fadeIn 0.2s ease-in-out forwards',
+                '@keyframes fadeIn': {
+                  '0%': {
+                    opacity: 0,
+                  },
+                  '100%': {
+                    opacity: 1,
+                  },
+                },
               }}
             >
               <Typography sx={{ color: '#e5e7eb', mb: 1 }}>
