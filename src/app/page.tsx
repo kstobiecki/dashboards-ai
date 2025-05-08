@@ -5,7 +5,6 @@ import {
   Box
 } from '@mui/material';
 import { Drawer } from './layouts/Drawer';
-import { AppProviders } from './context/AppProviders';
 import { LeftPanel } from './layouts/LeftPanel';
 import { MainPanel } from './layouts/MainPanel';
 
@@ -20,32 +19,30 @@ export default function Home() {
   }, []);
 
   return (
-    <AppProviders>
-      <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-        {/* Left Menu */}
-        {mounted && (
-          <LeftPanel
-            selectedItem={selectedItem}
-            onSelect={setSelectedItem}
-            menuWidth={menuWidth}
-          />
-        )}
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+      {/* Left Menu */}
+      {mounted && (
+        <LeftPanel
+          selectedItem={selectedItem}
+          onSelect={setSelectedItem}
+          menuWidth={menuWidth}
+        />
+      )}
 
-        {/* Drawer */}
-        {mounted && (
-          <Drawer 
-            selectedItem={selectedItem}
-          />
-        )}
+      {/* Drawer */}
+      {mounted && (
+        <Drawer 
+          selectedItem={selectedItem}
+        />
+      )}
 
-        {/* Main Content */}
-        {mounted && (
-          <MainPanel
-            selectedItem={selectedItem}
-            menuWidth={menuWidth}
-          />
-        )}
-      </Box>
-    </AppProviders>
+      {/* Main Content */}
+      {mounted && (
+        <MainPanel
+          selectedItem={selectedItem}
+          menuWidth={menuWidth}
+        />
+      )}
+    </Box>
   );
 }

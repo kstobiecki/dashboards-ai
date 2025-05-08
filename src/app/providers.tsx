@@ -7,6 +7,7 @@ import createCache from '@emotion/cache';
 import { useMemo } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { DashboardProvider } from './features/dashboards/context/DashboardContext';
 
 const theme = createTheme({
   palette: {
@@ -27,7 +28,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <DndProvider backend={HTML5Backend}>
-          {children}
+          <DashboardProvider>
+            {children}
+          </DashboardProvider>
         </DndProvider>
       </ThemeProvider>
     </CacheProvider>
