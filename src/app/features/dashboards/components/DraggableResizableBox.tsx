@@ -14,6 +14,8 @@ interface DraggableResizableBoxProps {
   onResize: (size: { width: number; height: number }) => void;
   onDelete: () => void;
   isEditMode: boolean;
+  zIndex: number;
+  onFocus: () => void;
 }
 
 export const DraggableResizableBox = ({ 
@@ -25,17 +27,22 @@ export const DraggableResizableBox = ({
   onResize,
   onDelete,
   isEditMode,
+  zIndex,
+  onFocus,
 }: DraggableResizableBoxProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'BOX',
-    item: () => ({ id }),
+    item: () => {
+      onFocus();
+      return { id };
+    },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
     canDrag: isEditMode && !isDeleting,
-  }), [id, isEditMode, isDeleting]);
+  }), [id, isEditMode, isDeleting, onFocus]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -90,12 +97,13 @@ export const DraggableResizableBox = ({
           border: '1px solid rgba(255, 255, 255, 0.1)',
           cursor: isEditMode && !isDeleting ? 'move' : 'default',
           opacity: isDragging ? 0.5 : 1,
-          zIndex: isDragging ? 1000 : 1,
+          zIndex: isDragging ? 1000 : zIndex,
           overflow: 'hidden',
         }}
       >
         <Box 
           ref={dragRef} 
+          onClick={onFocus}
           sx={{ 
             height: '100%', 
             width: '100%', 
