@@ -7,17 +7,6 @@ import { useDrag, useDrop } from 'react-dnd';
 import { ResizableBox } from 'react-resizable';
 import 'react-resizable/css/styles.css';
 
-// Custom styles for resize handles
-const resizeHandleStyles = {
-  position: 'absolute',
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  border: '1px solid rgba(255, 255, 255, 0.2)',
-  borderRadius: '2px',
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  },
-};
-
 export const DashboardContent = () => {
   const { dashboards, selectedDashboard, setSelectedDashboard, createDashboard } = useDashboard();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
