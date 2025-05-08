@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Box, Typography, IconButton } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useDashboard } from '../features/dashboards/context/DashboardContext';
 import { DashboardList } from '../features/dashboards/components/DashboardList';
 import { CreateDashboardModal } from '../features/dashboards/components/CreateDashboardModal';
+import { Dashboard } from '../features/dashboards/types/dashboard';
 
 interface DrawerProps {
   selectedItem: string;
@@ -15,9 +16,10 @@ export const Drawer = ({
   selectedItem,
 }: DrawerProps) => {
   const { createDashboard } = useDashboard();
-
+  const drawerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [dashboardToDelete, setDashboardToDelete] = useState<Dashboard | null>(null);
   const drawerWidth = 250;
   const menuWidth = 69;
 
@@ -27,13 +29,7 @@ export const Drawer = ({
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      
-      if (isVisible) {
-        // When drawer is visible, hide it when cursor moves beyond menu + drawer width
-        if (e.clientX > menuWidth + drawerWidth) {
-          onVisibilityChange(false);
-        }
-      } else {
+      if (!isVisible) {
         // When drawer is hidden, show it only when cursor is over the menu
         if (e.clientX < menuWidth) {
           onVisibilityChange(true);
@@ -43,7 +39,18 @@ export const Drawer = ({
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [isVisible, onVisibilityChange, drawerWidth, menuWidth]);
+  }, [isVisible, onVisibilityChange, menuWidth]);
+
+  // Hide drawer when any modal is opened
+  useEffect(() => {
+    if (isCreateModalOpen || dashboardToDelete) {
+      onVisibilityChange(false);
+    }
+  }, [isCreateModalOpen, dashboardToDelete, onVisibilityChange]);
+
+  const handleDrawerMouseLeave = () => {
+    onVisibilityChange(false);
+  };
 
   const renderContent = () => {
     switch (selectedItem) {
@@ -78,7 +85,11 @@ export const Drawer = ({
                 <AddIcon />
               </IconButton>
             </Box>
-            <DashboardList />
+            <DashboardList 
+              onDeleteClick={setDashboardToDelete}
+              dashboardToDelete={dashboardToDelete}
+              onDeleteCancel={() => setDashboardToDelete(null)}
+            />
             <CreateDashboardModal
               open={isCreateModalOpen}
               onClose={() => setIsCreateModalOpen(false)}
@@ -111,6 +122,8 @@ export const Drawer = ({
 
   return (
     <Box
+      ref={drawerRef}
+      onMouseLeave={handleDrawerMouseLeave}
       sx={{
         position: 'fixed',
         top: 0,

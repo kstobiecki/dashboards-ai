@@ -1,26 +1,22 @@
 import { Box, List, ListItemButton, Typography, IconButton, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
 import { Delete as DeleteIcon } from '@mui/icons-material';
 import { useDashboard } from '../context/DashboardContext';
-import { useState } from 'react';
 import { Dashboard } from '../types/dashboard';
 
-export const DashboardList = () => {
-  const { dashboards, selectedDashboard, setSelectedDashboard, deleteDashboard } = useDashboard();
-  const [dashboardToDelete, setDashboardToDelete] = useState<Dashboard | null>(null);
+interface DashboardListProps {
+  onDeleteClick: (dashboard: Dashboard) => void;
+  dashboardToDelete: Dashboard | null;
+  onDeleteCancel: () => void;
+}
 
-  const handleDeleteClick = (dashboard: Dashboard) => {
-    setDashboardToDelete(dashboard);
-  };
+export const DashboardList = ({ onDeleteClick, dashboardToDelete, onDeleteCancel }: DashboardListProps) => {
+  const { dashboards, selectedDashboard, setSelectedDashboard, deleteDashboard } = useDashboard();
 
   const handleConfirmDelete = () => {
     if (dashboardToDelete) {
       deleteDashboard(dashboardToDelete);
-      setDashboardToDelete(null);
+      onDeleteCancel();
     }
-  };
-
-  const handleCancelDelete = () => {
-    setDashboardToDelete(null);
   };
 
   return (
@@ -70,7 +66,7 @@ export const DashboardList = () => {
                 size="small"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleDeleteClick(dashboard);
+                  onDeleteClick(dashboard);
                 }}
                 sx={{
                   color: '#6b7280',
@@ -93,7 +89,7 @@ export const DashboardList = () => {
       </Box>
       <Dialog 
         open={!!dashboardToDelete} 
-        onClose={handleCancelDelete}
+        onClose={onDeleteCancel}
         PaperProps={{
           sx: {
             backgroundColor: '#23232a',
@@ -113,7 +109,7 @@ export const DashboardList = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ pb: 2, pr: 3 }}>
-          <Button onClick={handleCancelDelete} sx={{ color: '#bdbdbd' }}>
+          <Button onClick={onDeleteCancel} sx={{ color: '#bdbdbd' }}>
             Cancel
           </Button>
           <Button onClick={handleConfirmDelete} sx={{ color: '#ef4444', fontWeight: 600 }} autoFocus>

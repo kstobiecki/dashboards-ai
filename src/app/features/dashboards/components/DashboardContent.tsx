@@ -1,10 +1,81 @@
-import { Box, Typography, Button } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
+import { Box, Typography, Button, IconButton } from '@mui/material';
+import { Add as AddIcon, Edit as EditIcon, Check as CheckIcon } from '@mui/icons-material';
 import { useDashboard } from '../context/DashboardContext';
 import { useState } from 'react';
 import { CreateDashboardModal } from './CreateDashboardModal';
 import { DraggableResizableBox } from './DraggableResizableBox';
 import { useDrop } from 'react-dnd';
+
+const CLOCK_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Responsive Boxes with Clock and Date</title>
+    <script src="https://unpkg.com/dayjs/dayjs.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: stretch;
+            flex-wrap: wrap;
+        }
+        .box {
+            flex: 1 1 300px;
+            min-width: 200px;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            border: 1px solid #ccc;
+        }
+        .box:nth-child(1) { background-color: #f8b400; }
+        .box:nth-child(2) { background-color: #28c76f; color: white; }
+        .box:nth-child(3) { background-color: #00cfe8; }
+
+        .clock-time {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .clock-date {
+            font-size: 1.2rem;
+            margin-top: 0.5em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="box">Box 1</div>
+    <div class="box">
+        <div class="clock-time" id="clock-time">--:--:--</div>
+        <div class="clock-date" id="clock-date">Loading date...</div>
+    </div>
+    <div class="box">Box 3</div>
+</div>
+
+<script>
+    function updateClock() {
+        const now = dayjs();
+        document.getElementById("clock-time").textContent = now.format('HH:mm:ss');
+        document.getElementById("clock-date").textContent = now.format('dddd, MMMM D, YYYY');
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock(); // initial call
+</script>
+</body>
+</html>`;
 
 export const DashboardContent = () => {
   const { 
@@ -16,11 +87,13 @@ export const DashboardContent = () => {
     updateBox,
   } = useDashboard();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(true);
+  const [isHovering, setIsHovering] = useState(false);
 
   const [, drop] = useDrop(() => ({
     accept: 'BOX',
     drop: (item: { id: string }, monitor) => {
-      if (!selectedDashboard) return;
+      if (!selectedDashboard || !isEditMode) return;
       
       const delta = monitor.getDifferenceFromInitialOffset();
       if (!delta) return;
@@ -35,14 +108,14 @@ export const DashboardContent = () => {
       
       updateBox(selectedDashboard.id, item.id, newPosition);
     },
-  }), [selectedDashboard, updateBox]);
+  }), [selectedDashboard, updateBox, isEditMode]);
 
   const dropRef = (node: HTMLDivElement | null) => {
     drop(node);
   };
 
   const handleAddBox = () => {
-    if (!selectedDashboard) return;
+    if (!selectedDashboard || !isEditMode) return;
     if (selectedDashboard.boxes.length >= 20) return;
     
     const newBox = {
@@ -159,6 +232,8 @@ export const DashboardContent = () => {
     <div 
       ref={dropRef} 
       data-drop-container
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
       style={{ 
         minHeight: '100vh', 
         position: 'relative', 
@@ -168,43 +243,68 @@ export const DashboardContent = () => {
         height: '100%',
       }}
     >
-      <Button
-        variant="contained"
-        startIcon={<AddIcon />}
-        onClick={handleAddBox}
-        disabled={selectedDashboard.boxes.length >= 20}
-        sx={{
-          position: 'absolute',
+      <Box 
+        sx={{ 
+          position: 'fixed',
           top: 24,
           right: 24,
-          backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          color: '#e5e7eb',
-          '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.15)',
-          },
-          '& .MuiSvgIcon-root': {
-            color: '#6b7280',
-          },
-          '&.Mui-disabled': {
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            color: 'rgba(255, 255, 255, 0.3)',
-          },
+          display: 'flex',
+          gap: 2,
+          zIndex: 2000,
         }}
       >
-        Add Card
-      </Button>
+        <IconButton
+          onClick={() => setIsEditMode(!isEditMode)}
+          sx={{
+            backgroundColor: '#23232a',
+            color: '#e5e7eb',
+            transition: 'opacity 0.3s ease-in-out',
+            opacity: isEditMode ? 1 : (isHovering ? 1 : 0),
+            '&:hover': {
+              backgroundColor: '#2d2d35',
+            },
+          }}
+        >
+          {isEditMode ? <CheckIcon /> : <EditIcon />}
+        </IconButton>
+        {isEditMode && (
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleAddBox}
+            disabled={selectedDashboard.boxes.length >= 20}
+            sx={{
+              backgroundColor: '#23232a',
+              color: '#e5e7eb',
+              '&:hover': {
+                backgroundColor: '#2d2d35',
+              },
+              '& .MuiSvgIcon-root': {
+                color: '#6b7280',
+              },
+              '&.Mui-disabled': {
+                backgroundColor: '#1a1a1d',
+                color: 'rgba(255, 255, 255, 0.3)',
+              },
+            }}
+          >
+            Add Card
+          </Button>
+        )}
+      </Box>
 
       {selectedDashboard.boxes.map((box) => (
         <DraggableResizableBox
           key={box.id}
           id={box.id}
           title={selectedDashboard.title}
-          description={selectedDashboard.description}
+          htmlContent={CLOCK_HTML}
           position={{ x: box.x, y: box.y }}
           size={{ width: box.width, height: box.height }}
           onResize={(newSize) => {
             updateBox(selectedDashboard.id, box.id, newSize);
           }}
+          isEditMode={isEditMode}
         />
       ))}
     </div>

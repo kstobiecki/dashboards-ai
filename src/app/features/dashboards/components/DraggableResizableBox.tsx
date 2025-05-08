@@ -6,19 +6,21 @@ import 'react-resizable/css/styles.css';
 interface DraggableResizableBoxProps {
   id: string;
   title: string;
-  description: string;
+  htmlContent: string;
   position: { x: number; y: number };
   size: { width: number; height: number };
   onResize: (size: { width: number; height: number }) => void;
+  isEditMode: boolean;
 }
 
 export const DraggableResizableBox = ({ 
   id,
   title, 
-  description, 
+  htmlContent,
   position,
   size,
   onResize,
+  isEditMode,
 }: DraggableResizableBoxProps) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'BOX',
@@ -26,7 +28,8 @@ export const DraggableResizableBox = ({
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
-  }), [id]);
+    canDrag: isEditMode,
+  }), [id, isEditMode]);
 
   const dragRef = (node: HTMLDivElement | null) => {
     drag(node);
@@ -39,34 +42,42 @@ export const DraggableResizableBox = ({
         height={size.height}
         onResizeStop={(e, { size: newSize }) => onResize(newSize)}
         minConstraints={[200, 150]}
-        maxConstraints={[800, 600]}
-        resizeHandles={['se']}
+        maxConstraints={[2000, 2000]}
+        resizeHandles={isEditMode ? ['se'] : []}
         style={{
           position: 'absolute',
           left: position.x,
           top: position.y,
-          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          backgroundColor: '#23232a',
           borderRadius: 4,
-          padding: 16,
+          padding: 0,
           border: '1px solid rgba(255, 255, 255, 0.1)',
-          cursor: 'move',
+          cursor: isEditMode ? 'move' : 'default',
           opacity: isDragging ? 0.5 : 1,
           zIndex: isDragging ? 1000 : 1,
         }}
       >
         <div ref={dragRef} style={{ height: '100%', width: '100%' }}>
-          <Typography variant="h4" sx={{ color: '#e5e7eb', mb: 2 }}>
-            {title}
-          </Typography>
-          <Typography sx={{ color: '#6b7280' }}>
-            {description}
-          </Typography>
+          <iframe
+            srcDoc={htmlContent}
+            style={{
+              width: '100%',
+              height: '100%',
+              border: 'none',
+              backgroundColor: 'transparent',
+              overflow: 'hidden',
+              pointerEvents: isEditMode ? 'none' : 'auto',
+            }}
+            sandbox="allow-scripts allow-same-origin"
+            title={`iframe-${id}`}
+          />
         </div>
       </ResizableBox>
 
       <style jsx global>{`
         .react-resizable {
           padding: 0 !important;
+          border: 0 !important;
         }
 
         .react-resizable-handle {
