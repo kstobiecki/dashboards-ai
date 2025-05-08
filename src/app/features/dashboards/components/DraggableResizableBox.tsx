@@ -5,12 +5,14 @@ import { useState } from 'react';
 import 'react-resizable/css/styles.css';
 
 interface DraggableResizableBoxProps {
+  id: string;
   title: string;
   description: string;
   position: { x: number; y: number };
 }
 
 export const DraggableResizableBox = ({ 
+  id,
   title, 
   description, 
   position
@@ -19,6 +21,7 @@ export const DraggableResizableBox = ({
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'BOX',
+    item: { id },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),

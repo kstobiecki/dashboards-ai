@@ -6,26 +6,44 @@ import { CreateDashboardModal } from './CreateDashboardModal';
 import { DraggableResizableBox } from './DraggableResizableBox';
 import { useDrop } from 'react-dnd';
 
+interface BoxPosition {
+  id: string;
+  x: number;
+  y: number;
+}
+
 export const DashboardContent = () => {
   const { dashboards, selectedDashboard, setSelectedDashboard, createDashboard } = useDashboard();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [boxPositions, setBoxPositions] = useState<BoxPosition[]>([]);
 
   const [, drop] = useDrop(() => ({
     accept: 'BOX',
-    drop: (_, monitor) => {
+    drop: (item: { id: string }, monitor) => {
       const delta = monitor.getDifferenceFromInitialOffset();
       if (delta) {
-        setPosition(prev => ({
-          x: prev.x + delta.x,
-          y: prev.y + delta.y,
-        }));
+        setBoxPositions(prev => prev.map(box => 
+          box.id === item.id 
+            ? { ...box, x: box.x + delta.x, y: box.y + delta.y }
+            : box
+        ));
       }
     },
   }));
 
   const dropRef = (node: HTMLDivElement | null) => {
     drop(node);
+  };
+
+  const handleAddBox = () => {
+    if (boxPositions.length >= 20) return;
+    
+    const newBox: BoxPosition = {
+      id: `box-${Date.now()}`,
+      x: 50,
+      y: 50,
+    };
+    setBoxPositions(prev => [...prev, newBox]);
   };
 
   if (!selectedDashboard) {
@@ -130,11 +148,41 @@ export const DashboardContent = () => {
 
   return (
     <div ref={dropRef} style={{ minHeight: '100vh', position: 'relative', backgroundColor: '#18181b', padding: 24 }}>
-      <DraggableResizableBox
-        title={selectedDashboard.title}
-        description={selectedDashboard.description}
-        position={position}
-      />
+      <Button
+        variant="contained"
+        startIcon={<AddIcon />}
+        onClick={handleAddBox}
+        disabled={boxPositions.length >= 20}
+        sx={{
+          position: 'absolute',
+          top: 24,
+          right: 24,
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          color: '#e5e7eb',
+          '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.15)',
+          },
+          '& .MuiSvgIcon-root': {
+            color: '#6b7280',
+          },
+          '&.Mui-disabled': {
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            color: 'rgba(255, 255, 255, 0.3)',
+          },
+        }}
+      >
+        Add Card
+      </Button>
+
+      {boxPositions.map((position) => (
+        <DraggableResizableBox
+          key={position.id}
+          id={position.id}
+          title={selectedDashboard.title}
+          description={selectedDashboard.description}
+          position={{ x: position.x, y: position.y }}
+        />
+      ))}
     </div>
   );
 }; 
