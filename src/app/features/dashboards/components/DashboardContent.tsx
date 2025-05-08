@@ -6,44 +6,56 @@ import { CreateDashboardModal } from './CreateDashboardModal';
 import { DraggableResizableBox } from './DraggableResizableBox';
 import { useDrop } from 'react-dnd';
 
-interface BoxPosition {
-  id: string;
-  x: number;
-  y: number;
-}
-
 export const DashboardContent = () => {
-  const { dashboards, selectedDashboard, setSelectedDashboard, createDashboard } = useDashboard();
+  const { 
+    dashboards, 
+    selectedDashboard, 
+    setSelectedDashboard, 
+    createDashboard,
+    addBox,
+    updateBox,
+  } = useDashboard();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [boxPositions, setBoxPositions] = useState<BoxPosition[]>([]);
 
-  const [, drop] = useDrop(() => ({
+  const [{ isOver }, drop] = useDrop(() => ({
     accept: 'BOX',
     drop: (item: { id: string }, monitor) => {
+      if (!selectedDashboard) return;
+      
       const delta = monitor.getDifferenceFromInitialOffset();
-      if (delta) {
-        setBoxPositions(prev => prev.map(box => 
-          box.id === item.id 
-            ? { ...box, x: box.x + delta.x, y: box.y + delta.y }
-            : box
-        ));
-      }
+      if (!delta) return;
+
+      const box = selectedDashboard.boxes.find(b => b.id === item.id);
+      if (!box) return;
+
+      const newPosition = {
+        x: box.x + delta.x,
+        y: box.y + delta.y,
+      };
+      
+      updateBox(selectedDashboard.id, item.id, newPosition);
     },
-  }));
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  }), [selectedDashboard, updateBox]);
 
   const dropRef = (node: HTMLDivElement | null) => {
     drop(node);
   };
 
   const handleAddBox = () => {
-    if (boxPositions.length >= 20) return;
+    if (!selectedDashboard) return;
+    if (selectedDashboard.boxes.length >= 20) return;
     
-    const newBox: BoxPosition = {
+    const newBox = {
       id: `box-${Date.now()}`,
       x: 50,
       y: 50,
+      width: 300,
+      height: 200,
     };
-    setBoxPositions(prev => [...prev, newBox]);
+    addBox(selectedDashboard.id, newBox);
   };
 
   if (!selectedDashboard) {
@@ -145,14 +157,25 @@ export const DashboardContent = () => {
       </Box>
     );
   }
-
+  
   return (
-    <div ref={dropRef} style={{ minHeight: '100vh', position: 'relative', backgroundColor: '#18181b', padding: 24 }}>
+    <div 
+      ref={dropRef} 
+      data-drop-container
+      style={{ 
+        minHeight: '100vh', 
+        position: 'relative', 
+        backgroundColor: '#18181b', 
+        padding: 24,
+        width: '100%',
+        height: '100%',
+      }}
+    >
       <Button
         variant="contained"
         startIcon={<AddIcon />}
         onClick={handleAddBox}
-        disabled={boxPositions.length >= 20}
+        disabled={selectedDashboard.boxes.length >= 20}
         sx={{
           position: 'absolute',
           top: 24,
@@ -174,13 +197,17 @@ export const DashboardContent = () => {
         Add Card
       </Button>
 
-      {boxPositions.map((position) => (
+      {selectedDashboard.boxes.map((box) => (
         <DraggableResizableBox
-          key={position.id}
-          id={position.id}
+          key={box.id}
+          id={box.id}
           title={selectedDashboard.title}
           description={selectedDashboard.description}
-          position={{ x: position.x, y: position.y }}
+          position={{ x: box.x, y: box.y }}
+          size={{ width: box.width, height: box.height }}
+          onResize={(newSize) => {
+            updateBox(selectedDashboard.id, box.id, newSize);
+          }}
         />
       ))}
     </div>

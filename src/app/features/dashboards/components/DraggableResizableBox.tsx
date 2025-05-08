@@ -1,7 +1,6 @@
 import { Typography } from '@mui/material';
 import { useDrag } from 'react-dnd';
 import { ResizableBox } from 'react-resizable';
-import { useState } from 'react';
 import 'react-resizable/css/styles.css';
 
 interface DraggableResizableBoxProps {
@@ -9,23 +8,25 @@ interface DraggableResizableBoxProps {
   title: string;
   description: string;
   position: { x: number; y: number };
+  size: { width: number; height: number };
+  onResize: (size: { width: number; height: number }) => void;
 }
 
 export const DraggableResizableBox = ({ 
   id,
   title, 
   description, 
-  position
+  position,
+  size,
+  onResize,
 }: DraggableResizableBoxProps) => {
-  const [size, setSize] = useState({ width: 300, height: 200 });
-
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'BOX',
-    item: { id },
+    item: () => ({ id }),
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
-  }));
+  }), [id]);
 
   const dragRef = (node: HTMLDivElement | null) => {
     drag(node);
@@ -36,7 +37,7 @@ export const DraggableResizableBox = ({
       <ResizableBox
         width={size.width}
         height={size.height}
-        onResizeStop={(e, { size: newSize }) => setSize(newSize)}
+        onResizeStop={(e, { size: newSize }) => onResize(newSize)}
         minConstraints={[200, 150]}
         maxConstraints={[800, 600]}
         resizeHandles={['se']}
@@ -50,6 +51,7 @@ export const DraggableResizableBox = ({
           border: '1px solid rgba(255, 255, 255, 0.1)',
           cursor: 'move',
           opacity: isDragging ? 0.5 : 1,
+          zIndex: isDragging ? 1000 : 1,
         }}
       >
         <div ref={dragRef} style={{ height: '100%', width: '100%' }}>

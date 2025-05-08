@@ -1,8 +1,17 @@
+export interface Box {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface Dashboard {
   id: string;
   title: string;
   description: string;
   createdAt: string;
+  boxes: Box[];
 }
 
 export interface CreateDashboardModalProps {
