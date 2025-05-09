@@ -85,10 +85,21 @@ export const DashboardContent = () => {
     createDashboard,
     addBox,
     updateBox,
+    deleteBox,
   } = useDashboard();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(true);
   const [isHovering, setIsHovering] = useState(false);
+  const [zIndexMap, setZIndexMap] = useState<Record<string, number>>({});
+  const [nextZIndex, setNextZIndex] = useState(1);
+
+  const handleCardFocus = (cardId: string) => {
+    setZIndexMap(prev => ({
+      ...prev,
+      [cardId]: nextZIndex
+    }));
+    setNextZIndex(prev => prev + 1);
+  };
 
   const [, drop] = useDrop(() => ({
     accept: 'BOX',
@@ -304,7 +315,12 @@ export const DashboardContent = () => {
           onResize={(newSize) => {
             updateBox(selectedDashboard.id, box.id, newSize);
           }}
+          onDelete={() => {
+            deleteBox(selectedDashboard.id, box.id);
+          }}
           isEditMode={isEditMode}
+          zIndex={zIndexMap[box.id] || 1}
+          onFocus={() => handleCardFocus(box.id)}
         />
       ))}
     </div>

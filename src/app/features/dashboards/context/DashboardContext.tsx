@@ -104,6 +104,14 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
           }
         : dashboard
     ));
+    setSelectedDashboard(prev => 
+      prev?.id === dashboardId
+        ? {
+            ...prev,
+            boxes: prev.boxes.filter(box => box.id !== boxId),
+          }
+        : prev
+    );
   };
 
   return (
