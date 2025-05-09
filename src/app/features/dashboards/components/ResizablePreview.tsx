@@ -12,16 +12,26 @@ interface ResizablePreviewProps {
 export function ResizablePreview({ htmlContent, onClose }: ResizablePreviewProps) {
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const isResizing = useRef(false);
+  const resizeTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const handleResizeStart = useCallback((e: React.SyntheticEvent) => {
     e.stopPropagation();
     isResizing.current = true;
+    if (resizeTimeout.current) {
+      clearTimeout(resizeTimeout.current);
+      resizeTimeout.current = null;
+    }
   }, []);
 
   const handleResizeStop = useCallback((e: React.SyntheticEvent, { size }: { size: { width: number; height: number } }) => {
     e.stopPropagation();
     isResizing.current = false;
     setDimensions(size);
+    
+    // Set a timeout to allow clicking outside after 500ms
+    resizeTimeout.current = setTimeout(() => {
+      resizeTimeout.current = null;
+    }, 200);
   }, []);
 
   const handleResize = useCallback((e: React.SyntheticEvent, { size }: { size: { width: number; height: number } }) => {
@@ -34,6 +44,12 @@ export function ResizablePreview({ htmlContent, onClose }: ResizablePreviewProps
   const handleClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
   }, []);
+
+  const handleBackdropClick = useCallback((e: React.MouseEvent) => {
+    if (!isResizing.current && !resizeTimeout.current) {
+      onClose();
+    }
+  }, [onClose]);
 
   return (
     <Box
@@ -49,7 +65,7 @@ export function ResizablePreview({ htmlContent, onClose }: ResizablePreviewProps
         justifyContent: 'center',
         zIndex: 2000,
       }}
-      onClick={onClose}
+      onClick={handleBackdropClick}
     >
       <Box onClick={handleClick}>
         <ResizableBox
