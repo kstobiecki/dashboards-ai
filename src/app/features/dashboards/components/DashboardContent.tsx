@@ -1,7 +1,7 @@
 import { Box, Typography, Button, IconButton } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Check as CheckIcon } from '@mui/icons-material';
 import { useDashboard } from '../context/DashboardContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CreateDashboardModal } from './CreateDashboardModal';
 import { DraggableResizableBox } from './DraggableResizableBox';
 import { useDrop } from 'react-dnd';
@@ -94,6 +94,12 @@ export const DashboardContent = () => {
   const [isHovering, setIsHovering] = useState(false);
   const [zIndexMap, setZIndexMap] = useState<Record<string, number>>({});
   const [nextZIndex, setNextZIndex] = useState(1);
+
+  useEffect(() => {
+    if (selectedDashboard && selectedDashboard.boxes.length === 0) {
+      setIsEditMode(true);
+    }
+  }, [selectedDashboard]);
 
   const handleCardFocus = (cardId: string) => {
     setZIndexMap(prev => ({
@@ -246,6 +252,8 @@ export const DashboardContent = () => {
     );
   }
   
+  const isEmptyDashboard = selectedDashboard.boxes.length === 0;
+  
   return (
     <div 
       ref={dropRef} 
@@ -261,36 +269,85 @@ export const DashboardContent = () => {
         height: '100%',
       }}
     >
-      <Box 
-        sx={{ 
-          position: 'fixed',
-          top: 24,
-          right: 24,
-          display: 'flex',
-          gap: 2,
-          zIndex: 2000,
-        }}
-      >
-        <IconButton
-          onClick={() => setIsEditMode(!isEditMode)}
-          sx={{
-            backgroundColor: '#23232a',
-            color: '#e5e7eb',
-            transition: 'opacity 0.3s ease-in-out',
-            opacity: isEditMode ? 1 : (isHovering ? 1 : 0),
-            '&:hover': {
-              backgroundColor: '#2d2d35',
-            },
+      {!isEmptyDashboard && (
+        <Box 
+          sx={{ 
+            position: 'fixed',
+            top: 24,
+            right: 24,
+            display: 'flex',
+            gap: 2,
+            zIndex: 2000,
           }}
         >
-          {isEditMode ? <CheckIcon /> : <EditIcon />}
-        </IconButton>
-        {isEditMode && (
+          <IconButton
+            onClick={() => setIsEditMode(!isEditMode)}
+            sx={{
+              backgroundColor: '#23232a',
+              color: '#e5e7eb',
+              transition: 'opacity 0.3s ease-in-out',
+              opacity: isEditMode ? 1 : (isHovering ? 1 : 0),
+              '&:hover': {
+                backgroundColor: '#2d2d35',
+              },
+            }}
+          >
+            {isEditMode ? <CheckIcon /> : <EditIcon />}
+          </IconButton>
+          {isEditMode && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setIsAddCardModalOpen(true)}
+              disabled={selectedDashboard.boxes.length >= 20}
+              sx={{
+                backgroundColor: '#23232a',
+                color: '#e5e7eb',
+                '&:hover': {
+                  backgroundColor: '#2d2d35',
+                },
+                '& .MuiSvgIcon-root': {
+                  color: '#6b7280',
+                },
+                '&.Mui-disabled': {
+                  backgroundColor: '#1a1a1d',
+                  color: 'rgba(255, 255, 255, 0.3)',
+                },
+              }}
+            >
+              Add Card
+            </Button>
+          )}
+        </Box>
+      )}
+
+      {isEmptyDashboard ? (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 2,
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={{
+              color: '#6b7280',
+              textAlign: 'center',
+              mb: 2,
+            }}
+          >
+            No cards yet. Add your first card to get started.
+          </Typography>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setIsAddCardModalOpen(true)}
-            disabled={selectedDashboard.boxes.length >= 20}
             sx={{
               backgroundColor: '#23232a',
               color: '#e5e7eb',
@@ -300,36 +357,32 @@ export const DashboardContent = () => {
               '& .MuiSvgIcon-root': {
                 color: '#6b7280',
               },
-              '&.Mui-disabled': {
-                backgroundColor: '#1a1a1d',
-                color: 'rgba(255, 255, 255, 0.3)',
-              },
             }}
           >
             Add Card
           </Button>
-        )}
-      </Box>
-
-      {selectedDashboard.boxes.map((box) => (
-        <DraggableResizableBox
-          key={box.id}
-          id={box.id}
-          title={selectedDashboard.title}
-          htmlContent={CLOCK_HTML}
-          position={{ x: box.x, y: box.y }}
-          size={{ width: box.width, height: box.height }}
-          onResize={(newSize) => {
-            updateBox(selectedDashboard.id, box.id, newSize);
-          }}
-          onDelete={() => {
-            deleteBox(selectedDashboard.id, box.id);
-          }}
-          isEditMode={isEditMode}
-          zIndex={zIndexMap[box.id] || 1}
-          onFocus={() => handleCardFocus(box.id)}
-        />
-      ))}
+        </Box>
+      ) : (
+        selectedDashboard.boxes.map((box) => (
+          <DraggableResizableBox
+            key={box.id}
+            id={box.id}
+            title={selectedDashboard.title}
+            htmlContent={CLOCK_HTML}
+            position={{ x: box.x, y: box.y }}
+            size={{ width: box.width, height: box.height }}
+            onResize={(newSize) => {
+              updateBox(selectedDashboard.id, box.id, newSize);
+            }}
+            onDelete={() => {
+              deleteBox(selectedDashboard.id, box.id);
+            }}
+            isEditMode={isEditMode}
+            zIndex={zIndexMap[box.id] || 1}
+            onFocus={() => handleCardFocus(box.id)}
+          />
+        ))
+      )}
 
       <AddCardModal
         open={isAddCardModalOpen}
