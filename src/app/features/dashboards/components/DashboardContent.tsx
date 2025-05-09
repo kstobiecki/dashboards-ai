@@ -5,8 +5,9 @@ import { useState } from 'react';
 import { CreateDashboardModal } from './CreateDashboardModal';
 import { DraggableResizableBox } from './DraggableResizableBox';
 import { useDrop } from 'react-dnd';
+import { AddCardModal } from './AddCardModal';
 
-const CLOCK_HTML = `<!DOCTYPE html>
+export const CLOCK_HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -88,6 +89,7 @@ export const DashboardContent = () => {
     deleteBox,
   } = useDashboard();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(true);
   const [isHovering, setIsHovering] = useState(false);
   const [zIndexMap, setZIndexMap] = useState<Record<string, number>>({});
@@ -282,7 +284,7 @@ export const DashboardContent = () => {
           <Button
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={handleAddBox}
+            onClick={() => setIsAddCardModalOpen(true)}
             disabled={selectedDashboard.boxes.length >= 20}
             sx={{
               backgroundColor: '#23232a',
@@ -323,6 +325,12 @@ export const DashboardContent = () => {
           onFocus={() => handleCardFocus(box.id)}
         />
       ))}
+
+      <AddCardModal
+        open={isAddCardModalOpen}
+        onClose={() => setIsAddCardModalOpen(false)}
+        onSave={handleAddBox}
+      />
     </div>
   );
 }; 
