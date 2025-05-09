@@ -139,6 +139,11 @@ export const DashboardContent = () => {
       height: 200,
     };
     addBox(selectedDashboard.id, newBox);
+    setZIndexMap(prev => ({
+      ...prev,
+      [newBox.id]: nextZIndex
+    }));
+    setNextZIndex(prev => prev + 1);
   };
 
   if (!selectedDashboard) {
