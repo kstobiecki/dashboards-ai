@@ -94,19 +94,21 @@ export function AddCardModal({ open, onClose, onSave }: AddCardModalProps) {
                   },
                 }}
               />
-              <Button
-                onClick={handleBuild}
-                sx={{
-                  mt: 2,
-                  backgroundColor: '#232326',
-                  color: '#e5e7eb',
-                  '&:hover': {
-                    backgroundColor: '#2d2d35',
-                  },
-                }}
-              >
-                Build
-              </Button>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Button
+                  onClick={handleBuild}
+                  sx={{
+                    mt: 2,
+                    backgroundColor: '#232326',
+                    color: '#e5e7eb',
+                    '&:hover': {
+                      backgroundColor: '#2d2d35',
+                    },
+                  }}
+                >
+                  Build
+                </Button>
+              </Box>
             </Box>
 
             {/* Preview Area */}
