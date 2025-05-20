@@ -7,7 +7,6 @@ import 'react-resizable/css/styles.css';
 
 interface DraggableResizableBoxProps {
   id: string;
-  title: string;
   htmlContent: string;
   position: { x: number; y: number };
   size: { width: number; height: number };
@@ -20,7 +19,6 @@ interface DraggableResizableBoxProps {
 
 export const DraggableResizableBox = ({ 
   id,
-  title, 
   htmlContent,
   position,
   size,

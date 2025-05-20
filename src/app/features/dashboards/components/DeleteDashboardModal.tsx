@@ -19,7 +19,7 @@ export function DeleteDashboardModal({ open, onClose, onDelete, dashboardTitle }
       <Divider sx={{ background: 'rgba(255,255,255,0.08)', width: '95%', mx: 'auto' }} />
       <DialogContent>
         <Typography sx={{ color: '#e5e7eb' }}>
-          Are you sure you want to delete "{dashboardTitle}"? This action cannot be undone.
+          Are you sure you want to delete &quot;{dashboardTitle}&quot;? This action cannot be undone.
         </Typography>
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
