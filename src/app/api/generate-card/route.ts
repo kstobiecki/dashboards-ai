@@ -69,7 +69,7 @@ export async function POST(request: Request) {
         'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'sonar-pro',
+        model: 'sonar',
         messages
       }),
     });
