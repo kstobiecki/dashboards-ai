@@ -367,7 +367,6 @@ export const DashboardContent = () => {
           <DraggableResizableBox
             key={box.id}
             id={box.id}
-            title={selectedDashboard.title}
             htmlContent={CLOCK_HTML}
             position={{ x: box.x, y: box.y }}
             size={{ width: box.width, height: box.height }}

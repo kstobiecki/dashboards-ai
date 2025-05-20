@@ -14,8 +14,7 @@ export function ResizablePreview({ htmlContent, onClose }: ResizablePreviewProps
   const isResizing = useRef(false);
   const resizeTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  const handleResizeStart = useCallback((e: React.SyntheticEvent) => {
-    e.stopPropagation();
+  const handleResizeStart = useCallback(() => {
     isResizing.current = true;
     if (resizeTimeout.current) {
       clearTimeout(resizeTimeout.current);
@@ -45,7 +44,7 @@ export function ResizablePreview({ htmlContent, onClose }: ResizablePreviewProps
     e.stopPropagation();
   }, []);
 
-  const handleBackdropClick = useCallback((e: React.MouseEvent) => {
+  const handleBackdropClick = useCallback(() => {
     if (!isResizing.current && !resizeTimeout.current) {
       onClose();
     }

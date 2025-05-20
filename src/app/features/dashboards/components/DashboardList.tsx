@@ -105,7 +105,7 @@ export const DashboardList = ({ onDeleteClick, dashboardToDelete, onDeleteCancel
         </DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ color: '#bdbdbd', fontSize: '1rem' }}>
-            Are you sure you want to delete the dashboard "{dashboardToDelete?.title}"? This action cannot be undone.
+            Are you sure you want to delete the dashboard &quot;{dashboardToDelete?.title}&quot;? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ pb: 2, pr: 3 }}>

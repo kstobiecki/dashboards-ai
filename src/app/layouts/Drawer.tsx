@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Box, Typography, IconButton } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useDashboard } from '../features/dashboards/context/DashboardContext';
@@ -23,9 +23,9 @@ export const Drawer = ({
   const drawerWidth = 250;
   const menuWidth = 69;
 
-  const onVisibilityChange = (visible: boolean) => {
+  const onVisibilityChange = useCallback((visible: boolean) => {
     setIsVisible(visible);
-  };
+  }, []);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
