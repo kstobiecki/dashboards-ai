@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-import DOMPurify from 'dompurify';
-import { JSDOM } from 'jsdom';
 
 const SYSTEM_PROMPT = `You are a secure HTML component generator. 
 Respond in the following format:
@@ -25,10 +23,6 @@ If the user request is vague, include 1-2 follow-up questions, such as:
 - Do you prefer a light or dark theme?
 - Do you want real-time updates or static data?
 `;
-
-// Create a window object for DOMPurify
-const window = new JSDOM('').window;
-const purify = DOMPurify(window);
 
 interface RequestBody {
   prompt: string;
