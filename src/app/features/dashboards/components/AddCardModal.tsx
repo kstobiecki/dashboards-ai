@@ -278,7 +278,7 @@ export function AddCardModal({ open, onClose, onSave, onHtmlGenerated }: AddCard
                         fontWeight: 500,
                       }}
                     >
-                      View in adjustable mode
+                      View in preview mode
                     </DialogContentText>
                   </Box>
                 )}
