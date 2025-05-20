@@ -9,6 +9,7 @@ export interface Box {
   y: number;
   width: number;
   height: number;
+  html?: string;
 }
 
 export interface Dashboard {

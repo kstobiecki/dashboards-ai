@@ -8,29 +8,99 @@ import {
   DialogActions,
   TextField,
   DialogContentText,
+  CircularProgress,
 } from '@mui/material';
-import { CLOCK_HTML } from './DashboardContent';
 import { ResizablePreview } from './ResizablePreview';
 
 interface AddCardModalProps {
   open: boolean;
   onClose: () => void;
   onSave: () => void;
+  onHtmlGenerated: (html: string) => void;
 }
 
-export function AddCardModal({ open, onClose, onSave }: AddCardModalProps) {
+interface ConversationMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
+export function AddCardModal({ open, onClose, onSave, onHtmlGenerated }: AddCardModalProps) {
   const [prompt, setPrompt] = useState('');
   const [isResizablePreviewOpen, setIsResizablePreviewOpen] = useState(false);
+  const [generatedHtml, setGeneratedHtml] = useState<string>('');
+  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
+  const [conversationHistory, setConversationHistory] = useState<ConversationMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const handleBuild = () => {
-    // For now, we'll just use the static CLOCK_HTML
-    // In the future, this could generate HTML based on the prompt
+  const handleBuild = async () => {
+    if (!prompt.trim()) return;
+    
+    setIsLoading(true);
+    setErrorMessage('');
+    try {
+      const response = await fetch('/api/generate-card', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt,
+          conversationHistory,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to generate card');
+      }
+
+      // Check if the response contains a message
+      if (data.message) {
+        setErrorMessage(data.message);
+        setPrompt('');
+        return;
+      }
+      
+      // Update conversation history
+      const newHistory = [
+        ...conversationHistory,
+        { role: 'user' as const, content: prompt },
+        { role: 'assistant' as const, content: data.html },
+      ];
+      setConversationHistory(newHistory);
+
+      // Update UI
+      setGeneratedHtml(data.html);
+      onHtmlGenerated(data.html);
+      setFollowUpQuestions(data.questions || []);
+      setPrompt('');
+    } catch (error) {
+      console.error('Error generating card:', error);
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to generate card');
+      setPrompt('');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSave = () => {
     onSave();
+    // Reset state
     setPrompt('');
+    setGeneratedHtml('');
+    setFollowUpQuestions([]);
+    setConversationHistory([]);
+    setErrorMessage('');
     onClose();
+  };
+
+  const handleKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      handleBuild();
+    }
   };
 
   return (
@@ -57,9 +127,43 @@ export function AddCardModal({ open, onClose, onSave }: AddCardModalProps) {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
             {/* Input Area */}
             <Box>
-              <DialogContentText sx={{ color: '#bdbdbd', fontSize: '1rem', mb: 2 }}>
-                Enter a prompt to build your card.
+              <DialogContentText sx={{ color: '#fff', fontSize: '1rem', mb: 2 }}>
+                {followUpQuestions.length > 0
+                  ? 'Answer the follow-up questions:'
+                  : 'Enter a prompt to build your card.'}
               </DialogContentText>
+              {(followUpQuestions.length > 0 || errorMessage) && (
+                <Box sx={{ mb: 2 }}>
+                  {errorMessage ? (
+                    <DialogContentText
+                      sx={{ 
+                        color: '#fff', 
+                        fontSize: '0.9rem', 
+                        mb: 1,
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
+                      }}
+                    >
+                      {errorMessage}
+                    </DialogContentText>
+                  ) : (
+                    followUpQuestions.map((question, index) => (
+                      <DialogContentText
+                        key={index}
+                        sx={{ 
+                          color: '#fff', 
+                          fontSize: '0.9rem', 
+                          mb: 1,
+                          whiteSpace: 'pre-wrap',
+                          wordBreak: 'break-word',
+                        }}
+                      >
+                        • {question}
+                      </DialogContentText>
+                    ))
+                  )}
+                </Box>
+              )}
               <TextField
                 autoFocus
                 fullWidth
@@ -67,7 +171,9 @@ export function AddCardModal({ open, onClose, onSave }: AddCardModalProps) {
                 rows={4}
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Enter your prompt here..."
+                onKeyPress={handleKeyPress}
+                placeholder={followUpQuestions.length > 0 ? "Type your answer here..." : "Enter your prompt here..."}
+                disabled={isLoading}
                 sx={{
                   '& .MuiInputBase-root': {
                     color: '#e5e7eb',
@@ -97,6 +203,7 @@ export function AddCardModal({ open, onClose, onSave }: AddCardModalProps) {
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Button
                   onClick={handleBuild}
+                  disabled={isLoading || !prompt.trim()}
                   sx={{
                     mt: 2,
                     backgroundColor: '#232326',
@@ -104,14 +211,18 @@ export function AddCardModal({ open, onClose, onSave }: AddCardModalProps) {
                     '&:hover': {
                       backgroundColor: '#2d2d35',
                     },
+                    '&:disabled': {
+                      backgroundColor: '#1a1a1d',
+                      color: '#6b7280',
+                    },
                   }}
                 >
-                  Build
+                  {isLoading ? 'Generating...' : followUpQuestions.length > 0 ? 'Submit Answer' : 'Build'}
                 </Button>
               </Box>
             </Box>
 
-            {/* Preview Area */}
+            {/* Preview Area - Always Visible */}
             <Box>
               <DialogContentText sx={{ color: '#bdbdbd', fontSize: '1rem', mb: 2 }}>
                 Preview
@@ -125,48 +236,65 @@ export function AddCardModal({ open, onClose, onSave }: AddCardModalProps) {
                   overflow: 'hidden',
                   position: 'relative',
                   '&:hover .preview-overlay': {
-                    opacity: 1,
+                    opacity: generatedHtml ? 1 : 0,
                   },
                 }}
               >
-                <Box
-                  className="preview-overlay"
-                  onClick={() => setIsResizablePreviewOpen(true)}
-                  sx={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    opacity: 0,
-                    transition: 'opacity 0.2s ease-in-out',
-                    cursor: 'pointer',
-                    zIndex: 1,
-                  }}
-                >
-                  <DialogContentText
+                {generatedHtml && (
+                  <Box
+                    className="preview-overlay"
+                    onClick={() => setIsResizablePreviewOpen(true)}
                     sx={{
-                      color: '#fff',
-                      fontSize: '1rem',
-                      fontWeight: 500,
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      opacity: 0,
+                      transition: 'opacity 0.2s ease-in-out',
+                      cursor: 'pointer',
+                      zIndex: 1,
                     }}
                   >
-                    View in adjustable mode
-                  </DialogContentText>
-                </Box>
-                <iframe
-                  srcDoc={CLOCK_HTML}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    border: 'none',
-                  }}
-                  title="Card Preview"
-                />
+                    <DialogContentText
+                      sx={{
+                        color: '#fff',
+                        fontSize: '1rem',
+                        fontWeight: 500,
+                      }}
+                    >
+                      View in adjustable mode
+                    </DialogContentText>
+                  </Box>
+                )}
+                {isLoading ? (
+                  <Box
+                    sx={{
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <CircularProgress sx={{ color: '#e5e7eb' }} />
+                  </Box>
+                ) : (
+                  <iframe
+                    srcDoc={generatedHtml || '<div style="width: 100%; height: 100%;"></div>'}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      border: 'none',
+                    }}
+                    title="Card Preview"
+                    sandbox="allow-scripts"
+                  />
+                )}
               </Box>
             </Box>
           </Box>
@@ -175,7 +303,11 @@ export function AddCardModal({ open, onClose, onSave }: AddCardModalProps) {
           <Button onClick={onClose} sx={{ color: '#bdbdbd' }}>
             Cancel
           </Button>
-          <Button onClick={handleSave} sx={{ color: '#bdbdbd', fontWeight: 600 }}>
+          <Button 
+            onClick={handleSave} 
+            sx={{ color: '#bdbdbd', fontWeight: 600 }}
+            disabled={!generatedHtml}
+          >
             Save
           </Button>
         </DialogActions>
@@ -183,7 +315,7 @@ export function AddCardModal({ open, onClose, onSave }: AddCardModalProps) {
 
       {isResizablePreviewOpen && (
         <ResizablePreview
-          htmlContent={CLOCK_HTML}
+          htmlContent={generatedHtml}
           onClose={() => setIsResizablePreviewOpen(false)}
         />
       )}

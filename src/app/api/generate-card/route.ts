@@ -3,24 +3,27 @@ import DOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
 
 const SYSTEM_PROMPT = `You are a secure HTML component generator. 
-Always respond in the following JSON format:
+Respond in the following format:
 
-{
-  "html": "valid HTML with inline CSS and JS in one file",
-  "questions": ["optional array of follow-up questions"]
-}
+HTML:
+<div>your html content here</div>
 
-- If the user request is not related to view/component creation, respond with this string only (not JSON): 
-  I specialize in view creation. Please describe your visualization needs.
-- Default to a dark theme (#18181b background, #fafafa text) unless specified otherwise.
-- Use https://www.unpkg.com for any external resources.
-- All scripts must be safe, sandboxed, and self-contained.
-- Include responsive meta tags.
-- For charts, use Lightweight Charts (v4.0.0+).
-- If the user request is vague, include 1-2 follow-up questions in the "questions" array, such as:
-  "Should the layout prioritize news or charts?"
-  "Do you prefer a light or dark theme?"
-  "Do you want real-time updates or static data?"
+Questions:
+- First follow-up question
+- Second follow-up question
+
+If the user request is not related to view/component creation, respond with this text only:
+I specialize in view creation. Please describe your visualization needs.
+
+Default to a dark theme (#18181b background, #fafafa text) unless specified otherwise.
+Use https://www.unpkg.com for any external resources.
+All scripts must be safe, sandboxed, and self-contained.
+Include responsive meta tags.
+For charts, use Lightweight Charts (v4.0.0+).
+If the user request is vague, include 1-2 follow-up questions, such as:
+- Should the layout prioritize news or charts?
+- Do you prefer a light or dark theme?
+- Do you want real-time updates or static data?
 `;
 
 // Create a window object for DOMPurify
@@ -79,23 +82,30 @@ export async function POST(request: Request) {
     const data = await response.json();
     console.log('API: Received response from Perplexity');
     const content = data.choices[0].message.content;
-    
-    // Parse the JSON response from Sonar
-    console.log('API: Parsing JSON response');
-    const parsedContent = JSON.parse(content);
-    
-    // Sanitize the HTML
-    console.log('API: Sanitizing HTML');
-    const sanitizedHtml = purify.sanitize(parsedContent.html, {
-      ALLOWED_TAGS: ['div', 'p', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'img', 'script', 'style', 'meta', 'link'],
-      ALLOWED_ATTR: ['class', 'id', 'src', 'href', 'style', 'content', 'rel', 'type'],
-    });
 
-    console.log('API: Sending response to client');
-    // Return the sanitized response
+    // Check if it's the error message
+    if (content.includes('I specialize in view creation')) {
+      return NextResponse.json({
+        message: content
+      });
+    }
+
+    // Parse the response
+    const htmlMatch = content.match(/HTML:\s*([\s\S]*?)(?=Questions:|$)/);
+    const questionsMatch = content.match(/Questions:\s*([\s\S]*?)$/);
+
+    const html = htmlMatch ? htmlMatch[1].trim() : '';
+    const questions = questionsMatch 
+      ? questionsMatch[1]
+          .split('\n')
+          .map((q: string) => q.trim())
+          .filter((q: string) => q.startsWith('-'))
+          .map((q: string) => q.substring(1).trim())
+      : [];
+
     return NextResponse.json({
-      html: sanitizedHtml,
-      questions: parsedContent.questions,
+      html,
+      questions,
     });
   } catch (error) {
     console.error('API: Error generating card:', error);
