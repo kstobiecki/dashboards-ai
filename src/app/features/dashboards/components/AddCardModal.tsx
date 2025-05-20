@@ -103,11 +103,22 @@ export function AddCardModal({ open, onClose, onSave, onHtmlGenerated }: AddCard
     }
   };
 
+  const handleClose = () => {
+    // Reset all states
+    setPrompt('');
+    setGeneratedHtml('');
+    setFollowUpQuestions([]);
+    setConversationHistory([]);
+    setErrorMessage('');
+    setIsResizablePreviewOpen(false);
+    onClose();
+  };
+
   return (
     <>
       <Dialog
         open={open}
-        onClose={onClose}
+        onClose={handleClose}
         maxWidth="md"
         fullWidth
         PaperProps={{
@@ -300,7 +311,7 @@ export function AddCardModal({ open, onClose, onSave, onHtmlGenerated }: AddCard
           </Box>
         </DialogContent>
         <DialogActions sx={{ pb: 2, pr: 3 }}>
-          <Button onClick={onClose} sx={{ color: '#bdbdbd' }}>
+          <Button onClick={handleClose} sx={{ color: '#bdbdbd' }}>
             Cancel
           </Button>
           <Button 
