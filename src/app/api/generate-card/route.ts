@@ -10,6 +10,7 @@ Default to a dark theme (#18181b background, #fafafa text) unless specified othe
 Use https://www.unpkg.com for any external resources.
 All scripts must be safe, sandboxed, and self-contained.
 Include responsive meta tags.
+Responsive design is important.
 For charts, use Lightweight Charts (v4.0.0+).`;
 
 const QUESTIONS_SYSTEM_PROMPT = `You are an AI assistant helping to clarify visualization requirements.
