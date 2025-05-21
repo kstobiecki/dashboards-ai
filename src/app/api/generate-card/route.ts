@@ -23,17 +23,17 @@ Example response:
 
 interface RequestBody {
   prompt: string;
-  conversationHistory?: Array<{
-    role: 'system' | 'user' | 'assistant';
-    content: string;
-  }>;
+  conversationHistory?: {
+    prompts: string;
+    html: string;
+  };
 }
 
 export async function POST(request: Request) {
   console.log('API: Received request');
   try {
-    const { prompt, conversationHistory = [] } = await request.json() as RequestBody;
-    console.log('API: Parsed request body', { prompt, conversationHistoryLength: conversationHistory.length });
+    const { prompt, conversationHistory } = await request.json() as RequestBody;
+    console.log('API: Parsed request body', { prompt, conversationHistory });
 
     if (!prompt) {
       console.log('API: Error - Prompt is required');
@@ -44,16 +44,18 @@ export async function POST(request: Request) {
     }
 
     // Prepare messages for both calls
+    const userContent = conversationHistory 
+      ? `new user prompt: ${prompt}${conversationHistory.html ? `\nlatest html: ${conversationHistory.html}` : ''}${conversationHistory.prompts ? `\nconversation history prompts: ${conversationHistory.prompts}` : ''}`
+      : prompt;
+
     const htmlMessages = [
       { role: 'system', content: HTML_SYSTEM_PROMPT },
-      ...conversationHistory,
-      { role: 'user', content: prompt },
+      { role: 'user', content: userContent }
     ];
 
     const questionsMessages = [
       { role: 'system', content: QUESTIONS_SYSTEM_PROMPT },
-      ...conversationHistory,
-      { role: 'user', content: prompt },
+      { role: 'user', content: userContent }
     ];
 
     // Make parallel API calls

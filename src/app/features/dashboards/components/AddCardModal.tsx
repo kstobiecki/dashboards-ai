@@ -12,6 +12,11 @@ import {
 } from '@mui/material';
 import { ResizablePreview } from './ResizablePreview';
 
+interface ConversationHistory {
+  prompts: string;
+  html: string;
+}
+
 interface AddCardModalProps {
   open: boolean;
   onClose: () => void;
@@ -19,17 +24,15 @@ interface AddCardModalProps {
   onHtmlGenerated: (html: string) => void;
 }
 
-interface ConversationMessage {
-  role: 'system' | 'user' | 'assistant';
-  content: string;
-}
-
 export function AddCardModal({ open, onClose, onSave, onHtmlGenerated }: AddCardModalProps) {
   const [prompt, setPrompt] = useState('');
   const [isResizablePreviewOpen, setIsResizablePreviewOpen] = useState(false);
   const [generatedHtml, setGeneratedHtml] = useState<string>('');
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
-  const [conversationHistory, setConversationHistory] = useState<ConversationMessage[]>([]);
+  const [conversationHistory, setConversationHistory] = useState<ConversationHistory>({
+    prompts: '',
+    html: ''
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
@@ -64,11 +67,10 @@ export function AddCardModal({ open, onClose, onSave, onHtmlGenerated }: AddCard
       }
       
       // Update conversation history
-      const newHistory = [
-        ...conversationHistory,
-        { role: 'user' as const, content: prompt },
-        { role: 'assistant' as const, content: data.html },
-      ];
+      const newHistory = {
+        prompts: conversationHistory.prompts ? `${conversationHistory.prompts}\n${prompt}` : prompt,
+        html: data.html
+      };
       setConversationHistory(newHistory);
 
       // Update UI
@@ -91,7 +93,7 @@ export function AddCardModal({ open, onClose, onSave, onHtmlGenerated }: AddCard
     setPrompt('');
     setGeneratedHtml('');
     setFollowUpQuestions([]);
-    setConversationHistory([]);
+    setConversationHistory({ prompts: '', html: '' });
     setErrorMessage('');
     onClose();
   };
@@ -108,7 +110,7 @@ export function AddCardModal({ open, onClose, onSave, onHtmlGenerated }: AddCard
     setPrompt('');
     setGeneratedHtml('');
     setFollowUpQuestions([]);
-    setConversationHistory([]);
+    setConversationHistory({ prompts: '', html: '' });
     setErrorMessage('');
     setIsResizablePreviewOpen(false);
     onClose();
