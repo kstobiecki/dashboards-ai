@@ -1,28 +1,24 @@
 import { NextResponse } from 'next/server';
+import htmlValidator from 'html-validator';
 
-const SYSTEM_PROMPT = `You are a secure HTML component generator. 
-Respond in the following format:
-
-HTML:
-<div>your html content here</div>
-
-Questions:
-- First follow-up question
-- Second follow-up question
-
-If the user request is not related to view/component creation, respond with this text only:
-I specialize in view creation. Please describe your visualization needs.
+const HTML_SYSTEM_PROMPT = `You are a secure HTML component generator. 
+Respond with ONLY the HTML content, nothing else.
+The HTML should be a complete, valid HTML document.
+Do not include any other text or formatting like html or backticks or newlines (slash n) or similar. It has to be just the valid html.
 
 Default to a dark theme (#18181b background, #fafafa text) unless specified otherwise.
 Use https://www.unpkg.com for any external resources.
 All scripts must be safe, sandboxed, and self-contained.
 Include responsive meta tags.
-For charts, use Lightweight Charts (v4.0.0+).
-If the user request is vague, include 1-2 follow-up questions, such as:
+For charts, use Lightweight Charts (v4.0.0+).`;
+
+const QUESTIONS_SYSTEM_PROMPT = `You are an AI assistant helping to clarify visualization requirements.
+Respond with ONLY 2 follow-up questions, one per line, prefixed with a dash (-).
+Do not include any other text or formatting.
+
+Example response:
 - Should the layout prioritize news or charts?
-- Do you prefer a light or dark theme?
-- Do you want real-time updates or static data?
-`;
+- Do you prefer a light or dark theme?`;
 
 interface RequestBody {
   prompt: string;
@@ -46,56 +42,82 @@ export async function POST(request: Request) {
       );
     }
 
-    // Prepare the conversation with system prompt
-    const messages = [
-      { role: 'system', content: SYSTEM_PROMPT },
+    // Prepare messages for both calls
+    const htmlMessages = [
+      { role: 'system', content: HTML_SYSTEM_PROMPT },
       ...conversationHistory,
       { role: 'user', content: prompt },
     ];
-    console.log('API: Prepared messages for Perplexity', { messageCount: messages.length });
 
-    // Call Perplexity API directly
-    console.log('API: Calling Perplexity API');
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'sonar',
-        messages
+    const questionsMessages = [
+      { role: 'system', content: QUESTIONS_SYSTEM_PROMPT },
+      ...conversationHistory,
+      { role: 'user', content: prompt },
+    ];
+
+    // Make parallel API calls
+    const [htmlResponse, questionsResponse] = await Promise.all([
+      fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'sonar-pro',
+          messages: htmlMessages
+        }),
       }),
-    });
+      fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'sonar',
+          messages: questionsMessages
+        }),
+      })
+    ]);
 
-    if (!response.ok) {
-      console.error('API: Perplexity API error', { status: response.status, statusText: response.statusText });
-      throw new Error(`Perplexity API error: ${response.statusText}`);
+    if (!htmlResponse.ok || !questionsResponse.ok) {
+      console.error('API: Perplexity API error', { 
+        htmlStatus: htmlResponse.status, 
+        questionsStatus: questionsResponse.status 
+      });
+      throw new Error('Perplexity API error');
     }
 
-    const data = await response.json();
-    console.log('API: Received response from Perplexity');
-    const content = data.choices[0].message.content;
+    const [htmlData, questionsData] = await Promise.all([
+      htmlResponse.json(),
+      questionsResponse.json()
+    ]);
 
-    // Check if it's the error message
-    if (content.includes('I specialize in view creation')) {
+    const html = htmlData.choices[0].message.content;
+    
+    // Validate HTML
+    try {
+      const validationResult = await htmlValidator({ data: html });
+      
+      if (validationResult.messages && validationResult.messages.length > 0) {
+        console.error('API: Invalid HTML:', validationResult.messages);
+        return NextResponse.json({
+          message: 'I specialize in view creation. Please describe your visualization needs.'
+        });
+      }
+    } catch (error) {
+      console.error('API: HTML validation error:', error);
       return NextResponse.json({
-        message: content
+        message: 'I specialize in view creation. Please describe your visualization needs.'
       });
     }
 
-    // Parse the response
-    const htmlMatch = content.match(/HTML:\s*([\s\S]*?)(?=Questions:|$)/);
-    const questionsMatch = content.match(/Questions:\s*([\s\S]*?)$/);
-
-    const html = htmlMatch ? htmlMatch[1].trim() : '';
-    const questions = questionsMatch 
-      ? questionsMatch[1]
-          .split('\n')
-          .map((q: string) => q.trim())
-          .filter((q: string) => q.startsWith('-'))
-          .map((q: string) => q.substring(1).trim())
-      : [];
+    const questions = questionsData.choices[0].message.content
+      .split('\n')
+      .map((q: string) => q.trim())
+      .filter((q: string) => q.startsWith('-'))
+      .map((q: string) => q.substring(1).trim());
 
     return NextResponse.json({
       html,
