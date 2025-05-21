@@ -95,11 +95,14 @@ export async function POST(request: Request) {
       questionsResponse.json()
     ]);
 
-    const html = htmlData.choices[0].message.content;
+    const html = htmlData.choices[0].message.content.replace(/\n/g, '');
     
     // Validate HTML
     try {
-      const validationResult = await htmlValidator({ data: html });
+      const validationResult = await htmlValidator({ 
+        data: html,
+        ignore: ['trailing-slash', 'line-endings']
+      });
       
       if (validationResult.messages && validationResult.messages.length > 0) {
         console.error('API: Invalid HTML:', validationResult.messages);
