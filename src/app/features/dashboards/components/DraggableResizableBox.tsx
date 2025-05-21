@@ -82,7 +82,7 @@ export const DraggableResizableBox = ({
         width={size.width}
         height={size.height}
         onResizeStop={(e, { size: newSize }) => onResize(newSize)}
-        minConstraints={[200, 150]}
+        minConstraints={[380, 270]}
         maxConstraints={[2000, 2000]}
         resizeHandles={isEditMode ? ['se'] : []}
         style={{
