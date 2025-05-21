@@ -108,6 +108,7 @@ export function ResizablePreview({ htmlContent, onClose }: ResizablePreviewProps
               height: '100%',
               border: 'none',
               pointerEvents: isResizing.current ? 'none' : 'auto',
+              overflow: 'auto',
             }}
             title="Resizable Preview"
             sandbox="allow-scripts"

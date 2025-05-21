@@ -106,6 +106,7 @@ export const DraggableResizableBox = ({
             height: '100%', 
             width: '100%', 
             position: 'relative',
+            overflow: 'hidden',
             '&:hover .delete-button': {
               opacity: 1,
             },
@@ -201,10 +202,11 @@ export const DraggableResizableBox = ({
               height: '100%',
               border: 'none',
               backgroundColor: 'transparent',
-              overflow: 'hidden',
+              overflow: 'auto',
               pointerEvents: isEditMode ? 'none' : 'auto',
+              display: 'block',
             }}
-            sandbox="allow-scripts allow-same-origin"
+            sandbox="allow-scripts allow-same-origin allow-popups"
             title={`iframe-${id}`}
           />
         </Box>
