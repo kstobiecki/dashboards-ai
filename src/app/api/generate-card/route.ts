@@ -13,7 +13,7 @@ All scripts must be safe, sandboxed, and self-contained.
 Include responsive meta tags.
 Responsive design is important.
 For charts, use Lightweight Charts (v4.0.0+).
-The root element should have width: 100% and height: 100% to fill the entire parent component unless specifically requested by the user..
+The root element should have width: 100% and height: 100% to fill the entire parent component unless specifically requested by the user.
 Do not add border radius to the root element unless specifically requested by the user.`;
 
 const QUESTIONS_SYSTEM_PROMPT = `You are an AI assistant helping to clarify visualization requirements.
@@ -131,7 +131,7 @@ export async function POST(request: Request) {
     const { htmlMessages, questionsMessages } = prepareMessages(prompt, conversationHistory);
     const [htmlData, questionsData] = await makePerplexityRequests(htmlMessages, questionsMessages);
     
-    const html = htmlData.choices[0].message.content.replace(/\n/g, '');
+    const html = htmlData.choices[0].message.content;
     
     const isValidHtml = await validateHtml(html);
     if (!isValidHtml) {
