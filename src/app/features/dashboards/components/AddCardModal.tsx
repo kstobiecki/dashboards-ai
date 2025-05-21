@@ -287,27 +287,31 @@ export function AddCardModal({ open, onClose, onSave, onHtmlGenerated }: AddCard
                 {isLoading ? (
                   <Box
                     sx={{
-                      width: '100%',
-                      height: '100%',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
+                      backgroundColor: 'rgba(35, 35, 38, 0.7)',
+                      zIndex: 2,
                     }}
                   >
                     <CircularProgress sx={{ color: '#e5e7eb' }} />
                   </Box>
-                ) : (
-                  <iframe
-                    srcDoc={generatedHtml || '<div style="width: 100%; height: 100%;"></div>'}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      border: 'none',
-                    }}
-                    title="Card Preview"
-                    sandbox="allow-scripts"
-                  />
-                )}
+                ) : null}
+                <iframe
+                  srcDoc={generatedHtml || '<div style="width: 100%; height: 100%;"></div>'}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    border: 'none',
+                  }}
+                  title="Card Preview"
+                  sandbox="allow-scripts"
+                />
               </Box>
             </Box>
           </Box>
