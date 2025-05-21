@@ -8,10 +8,13 @@ Do not include any other text or formatting like html or backticks or newlines (
 
 Default to a dark theme (#18181b background, #fafafa text) unless specified otherwise.
 Use https://www.unpkg.com for any external resources.
+Include Tailwind CSS from https://www.unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css.
 All scripts must be safe, sandboxed, and self-contained.
 Include responsive meta tags.
 Responsive design is important.
-For charts, use Lightweight Charts (v4.0.0+).`;
+For charts, use Lightweight Charts (v4.0.0+).
+The root element should have width: 100% and height: 100% to fill the entire parent component unless specifically requested by the user..
+Do not add border radius to the root element unless specifically requested by the user.`;
 
 const QUESTIONS_SYSTEM_PROMPT = `You are an AI assistant helping to clarify visualization requirements.
 Respond with ONLY 2 follow-up questions, one per line, prefixed with a dash (-).
