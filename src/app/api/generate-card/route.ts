@@ -32,6 +32,88 @@ interface RequestBody {
   };
 }
 
+interface Message {
+  role: string;
+  content: string;
+}
+
+// Helper methods
+function prepareMessages(prompt: string, conversationHistory?: { prompts: string; html: string }): { htmlMessages: Message[]; questionsMessages: Message[] } {
+  const userContent = conversationHistory 
+    ? `new user prompt: ${prompt}${conversationHistory.html ? `\nlatest html: ${conversationHistory.html}` : ''}${conversationHistory.prompts ? `\nconversation history prompts: ${conversationHistory.prompts}` : ''}`
+    : prompt;
+
+  return {
+    htmlMessages: [
+      { role: 'system', content: HTML_SYSTEM_PROMPT },
+      { role: 'user', content: userContent }
+    ],
+    questionsMessages: [
+      { role: 'system', content: QUESTIONS_SYSTEM_PROMPT },
+      { role: 'user', content: userContent }
+    ]
+  };
+}
+
+async function makePerplexityRequests(htmlMessages: Message[], questionsMessages: Message[]) {
+  const [htmlResponse, questionsResponse] = await Promise.all([
+    fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'sonar-pro',
+        messages: htmlMessages
+      }),
+    }),
+    fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'sonar',
+        messages: questionsMessages
+      }),
+    })
+  ]);
+
+  if (!htmlResponse.ok || !questionsResponse.ok) {
+    throw new Error('Perplexity API error');
+  }
+
+  return Promise.all([htmlResponse.json(), questionsResponse.json()]);
+}
+
+async function validateHtml(html: string): Promise<boolean> {
+  try {
+    const validationResult = await htmlValidator({ 
+      data: html,
+      ignore: ['trailing-slash', 'line-endings']
+    });
+    
+    if (validationResult.messages && validationResult.messages.length > 0) {
+      console.error('API: Invalid HTML:', validationResult.messages);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error('API: HTML validation error:', error);
+    return false;
+  }
+}
+
+function parseQuestions(content: string): string[] {
+  return content
+    .split('\n')
+    .map((q: string) => q.trim())
+    .filter((q: string) => q.startsWith('-'))
+    .map((q: string) => q.substring(1).trim());
+}
+
 export async function POST(request: Request) {
   console.log('API: Received request');
   try {
@@ -46,87 +128,19 @@ export async function POST(request: Request) {
       );
     }
 
-    // Prepare messages for both calls
-    const userContent = conversationHistory 
-      ? `new user prompt: ${prompt}${conversationHistory.html ? `\nlatest html: ${conversationHistory.html}` : ''}${conversationHistory.prompts ? `\nconversation history prompts: ${conversationHistory.prompts}` : ''}`
-      : prompt;
-
-    const htmlMessages = [
-      { role: 'system', content: HTML_SYSTEM_PROMPT },
-      { role: 'user', content: userContent }
-    ];
-
-    const questionsMessages = [
-      { role: 'system', content: QUESTIONS_SYSTEM_PROMPT },
-      { role: 'user', content: userContent }
-    ];
-
-    // Make parallel API calls
-    const [htmlResponse, questionsResponse] = await Promise.all([
-      fetch('https://api.perplexity.ai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'sonar-pro',
-          messages: htmlMessages
-        }),
-      }),
-      fetch('https://api.perplexity.ai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'sonar',
-          messages: questionsMessages
-        }),
-      })
-    ]);
-
-    if (!htmlResponse.ok || !questionsResponse.ok) {
-      console.error('API: Perplexity API error', { 
-        htmlStatus: htmlResponse.status, 
-        questionsStatus: questionsResponse.status 
-      });
-      throw new Error('Perplexity API error');
-    }
-
-    const [htmlData, questionsData] = await Promise.all([
-      htmlResponse.json(),
-      questionsResponse.json()
-    ]);
-
+    const { htmlMessages, questionsMessages } = prepareMessages(prompt, conversationHistory);
+    const [htmlData, questionsData] = await makePerplexityRequests(htmlMessages, questionsMessages);
+    
     const html = htmlData.choices[0].message.content.replace(/\n/g, '');
     
-    // Validate HTML
-    try {
-      const validationResult = await htmlValidator({ 
-        data: html,
-        ignore: ['trailing-slash', 'line-endings']
-      });
-      
-      if (validationResult.messages && validationResult.messages.length > 0) {
-        console.error('API: Invalid HTML:', validationResult.messages);
-        return NextResponse.json({
-          message: 'I specialize in view creation. Please describe your visualization needs.'
-        });
-      }
-    } catch (error) {
-      console.error('API: HTML validation error:', error);
+    const isValidHtml = await validateHtml(html);
+    if (!isValidHtml) {
       return NextResponse.json({
         message: 'I specialize in view creation. Please describe your visualization needs.'
       });
     }
 
-    const questions = questionsData.choices[0].message.content
-      .split('\n')
-      .map((q: string) => q.trim())
-      .filter((q: string) => q.startsWith('-'))
-      .map((q: string) => q.substring(1).trim());
+    const questions = parseQuestions(questionsData.choices[0].message.content);
 
     return NextResponse.json({
       html,
