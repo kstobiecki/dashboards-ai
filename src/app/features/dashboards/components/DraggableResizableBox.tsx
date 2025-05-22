@@ -168,7 +168,7 @@ export const DraggableResizableBox = ({
                   },
                 }}
               >
-                <EditIcon sx={{ fontSize: 18 }} />
+                <EditIcon sx={{ fontSize: 28 }} />
               </IconButton>
               <IconButton
                 size="small"
@@ -184,7 +184,7 @@ export const DraggableResizableBox = ({
                   },
                 }}
               >
-                <DeleteIcon sx={{ fontSize: 18 }} />
+                <DeleteIcon sx={{ fontSize: 28 }} />
               </IconButton>
             </Box>
           )}
