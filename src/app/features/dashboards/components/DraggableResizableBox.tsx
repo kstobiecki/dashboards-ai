@@ -1,10 +1,11 @@
-import { Typography, IconButton, Box, Button } from '@mui/material';
-import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Typography, IconButton, Box, Button, Menu, MenuItem } from '@mui/material';
+import { Delete as DeleteIcon, Edit as EditIcon, ContentCopy as ContentCopyIcon } from '@mui/icons-material';
 import { useDrag } from 'react-dnd';
 import { ResizableBox } from 'react-resizable';
 import { useState, useEffect, useRef } from 'react';
 import 'react-resizable/css/styles.css';
 import { AddCardModal } from './AddCardModal';
+import { useDashboard } from '../context/DashboardContext';
 
 interface DraggableResizableBoxProps {
   id: string;
@@ -39,7 +40,10 @@ export const DraggableResizableBox = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [previewHtml, setPreviewHtml] = useState<string>('');
+  const [moveMenuAnchor, setMoveMenuAnchor] = useState<null | HTMLElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
+  const { dashboards, selectedDashboard, cloneBox } = useDashboard();
+
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'BOX',
     item: () => {
@@ -97,6 +101,22 @@ export const DraggableResizableBox = ({
     setIsEditModalOpen(true);
   };
 
+  const handleMoveClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    setMoveMenuAnchor(e.currentTarget);
+  };
+
+  const handleMoveMenuClose = () => {
+    setMoveMenuAnchor(null);
+  };
+
+  const handleMoveToDashboard = (targetDashboardId: string) => {
+    if (selectedDashboard) {
+      cloneBox(selectedDashboard.id, targetDashboardId, id);
+    }
+    handleMoveMenuClose();
+  };
+
   const handleEditSave = (html: string, newConversationHistory: { prompts: string; html: string }) => {
     onUpdate(html, { ...newConversationHistory, html });
     setIsEditModalOpen(false);
@@ -106,6 +126,8 @@ export const DraggableResizableBox = ({
     setPreviewHtml('');
     setIsEditModalOpen(false);
   };
+
+  const availableDashboards = dashboards.filter(d => d.id !== selectedDashboard?.id);
 
   return (
     <>
@@ -138,7 +160,7 @@ export const DraggableResizableBox = ({
             width: '100%', 
             position: 'relative',
             overflow: 'hidden',
-            '&:hover .action-button': {
+            '&:hover .action-button, & .action-button.visible': {
               opacity: 1,
             },
           }}
@@ -157,7 +179,7 @@ export const DraggableResizableBox = ({
               <IconButton
                 size="small"
                 onClick={handleEditClick}
-                className="action-button"
+                className={`action-button ${isEditModalOpen || moveMenuAnchor ? 'visible' : ''}`}
                 sx={{
                   color: '#6b7280',
                   opacity: 0,
@@ -172,8 +194,28 @@ export const DraggableResizableBox = ({
               </IconButton>
               <IconButton
                 size="small"
+                onClick={handleMoveClick}
+                className={`action-button ${moveMenuAnchor ? 'visible' : ''}`}
+                disabled={availableDashboards.length === 0}
+                sx={{
+                  color: '#6b7280',
+                  opacity: 0,
+                  transition: 'opacity 0.2s ease-in-out',
+                  '&:hover': {
+                    color: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                  },
+                  '&.Mui-disabled': {
+                    opacity: 0,
+                  },
+                }}
+              >
+                <ContentCopyIcon sx={{ fontSize: 28 }} />
+              </IconButton>
+              <IconButton
+                size="small"
                 onClick={handleDeleteClick}
-                className="action-button"
+                className={`action-button ${isDeleting || moveMenuAnchor ? 'visible' : ''}`}
                 sx={{
                   color: '#6b7280',
                   opacity: 0,
@@ -227,7 +269,6 @@ export const DraggableResizableBox = ({
                     borderColor: 'rgba(255, 255, 255, 0.2)',
                     '&:hover': {
                       borderColor: 'rgba(255, 255, 255, 0.4)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
                     },
                   }}
                 >
@@ -265,6 +306,52 @@ export const DraggableResizableBox = ({
           />
         </Box>
       </ResizableBox>
+
+      <Menu
+        anchorEl={moveMenuAnchor}
+        open={Boolean(moveMenuAnchor)}
+        onClose={handleMoveMenuClose}
+        PaperProps={{
+          sx: {
+            backgroundColor: '#23232a',
+            color: '#e5e7eb',
+            width: '100px',
+            maxHeight: '127px',
+            overflowY: 'auto',
+            '& .MuiMenuItem-root': {
+              padding: '8px 16px',
+              minHeight: 'unset',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              },
+            },
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            },
+            msOverflowStyle: 'none',
+            scrollbarWidth: 'none',
+          },
+        }}
+      >
+        {availableDashboards.map((dashboard) => (
+          <MenuItem
+            key={dashboard.id}
+            onClick={() => handleMoveToDashboard(dashboard.id)}
+            sx={{
+              color: '#e5e7eb',
+              fontSize: '0.875rem',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              },
+            }}
+          >
+            {dashboard.title}
+          </MenuItem>
+        ))}
+      </Menu>
 
       <AddCardModal
         open={isEditModalOpen}

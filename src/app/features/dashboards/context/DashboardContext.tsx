@@ -33,6 +33,7 @@ interface DashboardContextType {
   addBox: (dashboardId: string, box: Box) => void;
   updateBox: (dashboardId: string, boxId: string, updates: Partial<Box>) => void;
   deleteBox: (dashboardId: string, boxId: string) => void;
+  cloneBox: (sourceDashboardId: string, targetDashboardId: string, boxId: string) => void;
 }
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
@@ -119,6 +120,38 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
+  const cloneBox = (sourceDashboardId: string, targetDashboardId: string, boxId: string) => {
+    const sourceDashboard = dashboards.find(d => d.id === sourceDashboardId);
+    const boxToClone = sourceDashboard?.boxes.find(b => b.id === boxId);
+    
+    if (!boxToClone) return;
+
+    const clonedBox: Box = {
+      ...boxToClone,
+      id: `box-${Date.now()}-${nanoid(10)}`,
+      x: 50,  // Initial x position
+      y: 50,  // Initial y position
+    };
+
+    setDashboards(prev => prev.map(dashboard =>
+      dashboard.id === targetDashboardId
+        ? {
+            ...dashboard,
+            boxes: [...dashboard.boxes, clonedBox],
+          }
+        : dashboard
+    ));
+
+    if (selectedDashboard?.id === targetDashboardId) {
+      setSelectedDashboard(prev => 
+        prev ? {
+          ...prev,
+          boxes: [...prev.boxes, clonedBox],
+        } : prev
+      );
+    }
+  };
+
   return (
     <DashboardContext.Provider
       value={{
@@ -130,6 +163,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
         addBox,
         updateBox,
         deleteBox,
+        cloneBox,
       }}
     >
       {children}
