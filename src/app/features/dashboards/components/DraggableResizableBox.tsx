@@ -313,16 +313,21 @@ export const DraggableResizableBox = ({
         onClose={handleMoveMenuClose}
         PaperProps={{
           sx: {
-            backgroundColor: '#23232a',
+            backgroundColor: '#1f2937',
             color: '#e5e7eb',
-            width: '100px',
+            width: '150px',
             maxHeight: '127px',
             overflowY: 'auto',
+            borderRadius: '8px',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
             '& .MuiMenuItem-root': {
-              padding: '8px 16px',
+              padding: '10px 16px',
               minHeight: 'unset',
+              fontSize: '0.875rem',
+              transition: 'all 0.2s ease-in-out',
               '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
               },
             },
             '&::-webkit-scrollbar': {
@@ -340,15 +345,22 @@ export const DraggableResizableBox = ({
             sx={{
               color: '#e5e7eb',
               fontSize: '0.875rem',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
+              maxWidth: '100%',
               '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
               },
             }}
           >
-            {dashboard.title}
+            <Typography
+              sx={{
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                width: '100%',
+              }}
+            >
+              {dashboard.title}
+            </Typography>
           </MenuItem>
         ))}
       </Menu>
