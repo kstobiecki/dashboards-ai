@@ -72,8 +72,8 @@ export const DashboardContent = () => {
       id: `box-${Date.now()}`,
       x: 50,
       y: 50,
-      width: 300,
-      height: 200,
+      width: 600,
+      height: 380,
       html: generatedHtml,
       conversationHistory,
     };
