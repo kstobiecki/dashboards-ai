@@ -111,7 +111,7 @@ export function ResizablePreview({ htmlContent, onClose }: ResizablePreviewProps
               overflow: 'auto',
             }}
             title="Resizable Preview"
-            sandbox="allow-scripts"
+            sandbox="allow-scripts allow-same-origin allow-popups"
           />
         </ResizableBox>
       </Box>
