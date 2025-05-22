@@ -9,6 +9,11 @@ export interface Box {
   y: number;
   width: number;
   height: number;
+  html?: string;
+  conversationHistory?: {
+    prompts: string;
+    html: string;
+  };
 }
 
 export interface Dashboard {

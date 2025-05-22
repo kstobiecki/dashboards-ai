@@ -96,7 +96,7 @@ export function ResizablePreview({ htmlContent, onClose }: ResizablePreviewProps
               '&:hover': {
                 backgroundColor: 'rgba(0, 0, 0, 0.3)',
               },
-              zIndex: 1,
+              zIndex: 2,
             }}
           >
             <CloseIcon />
@@ -107,9 +107,11 @@ export function ResizablePreview({ htmlContent, onClose }: ResizablePreviewProps
               width: '100%',
               height: '100%',
               border: 'none',
-              pointerEvents: 'none',
+              pointerEvents: isResizing.current ? 'none' : 'auto',
+              overflow: 'auto',
             }}
             title="Resizable Preview"
+            sandbox="allow-scripts allow-same-origin allow-popups"
           />
         </ResizableBox>
       </Box>
@@ -132,8 +134,9 @@ export function ResizablePreview({ htmlContent, onClose }: ResizablePreviewProps
           bottom: 0 !important;
           right: 0 !important;
           cursor: se-resize !important;
-          z-index: 2 !important;
+          z-index: 3 !important;
           touch-action: none !important;
+          pointer-events: auto !important;
         }
 
         .react-resizable-handle:hover {

@@ -27,6 +27,13 @@ export function CreateDashboardModal({ open, onClose, onCreate }: CreateDashboar
     }
   };
 
+  const handleKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' && !event.shiftKey && title.trim()) {
+      event.preventDefault();
+      handleCreate();
+    }
+  };
+
   return (
     <Dialog
       open={open}
@@ -55,6 +62,7 @@ export function CreateDashboardModal({ open, onClose, onCreate }: CreateDashboar
             fullWidth
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            onKeyPress={handleKeyPress}
             sx={{
               '& .MuiInputBase-root': {
                 color: '#e5e7eb',

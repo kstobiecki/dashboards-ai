@@ -1,9 +1,10 @@
 import { Typography, IconButton, Box, Button } from '@mui/material';
-import { Delete as DeleteIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { useDrag } from 'react-dnd';
 import { ResizableBox } from 'react-resizable';
 import { useState, useEffect, useRef } from 'react';
 import 'react-resizable/css/styles.css';
+import { AddCardModal } from './AddCardModal';
 
 interface DraggableResizableBoxProps {
   id: string;
@@ -15,6 +16,11 @@ interface DraggableResizableBoxProps {
   isEditMode: boolean;
   zIndex: number;
   onFocus: () => void;
+  conversationHistory?: {
+    prompts: string;
+    html: string;
+  };
+  onUpdate: (html: string, conversationHistory: { prompts: string; html: string }) => void;
 }
 
 export const DraggableResizableBox = ({ 
@@ -27,8 +33,12 @@ export const DraggableResizableBox = ({
   isEditMode,
   zIndex,
   onFocus,
+  conversationHistory,
+  onUpdate,
 }: DraggableResizableBoxProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState<string>('');
   const boxRef = useRef<HTMLDivElement>(null);
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'BOX',
@@ -55,6 +65,12 @@ export const DraggableResizableBox = ({
     };
   }, [isDeleting]);
 
+  useEffect(() => {
+    if (isEditModalOpen) {
+      setPreviewHtml(htmlContent);
+    }
+  }, [isEditModalOpen, htmlContent]);
+
   const dragRef = (node: HTMLDivElement | null) => {
     drag(node);
     boxRef.current = node;
@@ -76,13 +92,28 @@ export const DraggableResizableBox = ({
     setIsDeleting(false);
   };
 
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSave = (html: string, newConversationHistory: { prompts: string; html: string }) => {
+    onUpdate(html, { ...newConversationHistory, html });
+    setIsEditModalOpen(false);
+  };
+
+  const handleEditClose = () => {
+    setPreviewHtml('');
+    setIsEditModalOpen(false);
+  };
+
   return (
     <>
       <ResizableBox
         width={size.width}
         height={size.height}
         onResizeStop={(e, { size: newSize }) => onResize(newSize)}
-        minConstraints={[200, 150]}
+        minConstraints={[380, 270]}
         maxConstraints={[2000, 2000]}
         resizeHandles={isEditMode ? ['se'] : []}
         style={{
@@ -106,32 +137,56 @@ export const DraggableResizableBox = ({
             height: '100%', 
             width: '100%', 
             position: 'relative',
-            '&:hover .delete-button': {
+            overflow: 'hidden',
+            '&:hover .action-button': {
               opacity: 1,
             },
           }}
         >
           {isEditMode && !isDeleting && (
-            <IconButton
-              size="small"
-              onClick={handleDeleteClick}
-              className="delete-button"
+            <Box
               sx={{
                 position: 'absolute',
                 top: 8,
                 left: 8,
-                color: '#6b7280',
-                opacity: 0,
-                transition: 'opacity 0.2s ease-in-out',
-                '&:hover': {
-                  color: '#ef4444',
-                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                },
+                display: 'flex',
+                gap: 1,
                 zIndex: 2,
               }}
             >
-              <DeleteIcon sx={{ fontSize: 18 }} />
-            </IconButton>
+              <IconButton
+                size="small"
+                onClick={handleEditClick}
+                className="action-button"
+                sx={{
+                  color: '#6b7280',
+                  opacity: 0,
+                  transition: 'opacity 0.2s ease-in-out',
+                  '&:hover': {
+                    color: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                  },
+                }}
+              >
+                <EditIcon sx={{ fontSize: 28 }} />
+              </IconButton>
+              <IconButton
+                size="small"
+                onClick={handleDeleteClick}
+                className="action-button"
+                sx={{
+                  color: '#6b7280',
+                  opacity: 0,
+                  transition: 'opacity 0.2s ease-in-out',
+                  '&:hover': {
+                    color: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                  },
+                }}
+              >
+                <DeleteIcon sx={{ fontSize: 28 }} />
+              </IconButton>
+            </Box>
           )}
           {isDeleting && (
             <Box
@@ -201,14 +256,25 @@ export const DraggableResizableBox = ({
               height: '100%',
               border: 'none',
               backgroundColor: 'transparent',
-              overflow: 'hidden',
+              overflow: 'auto',
               pointerEvents: isEditMode ? 'none' : 'auto',
+              display: 'block',
             }}
-            sandbox="allow-scripts allow-same-origin"
+            sandbox="allow-scripts allow-same-origin allow-popups"
             title={`iframe-${id}`}
           />
         </Box>
       </ResizableBox>
+
+      <AddCardModal
+        open={isEditModalOpen}
+        onClose={handleEditClose}
+        onSave={() => handleEditSave(previewHtml, conversationHistory || { prompts: '', html: '' })}
+        onHtmlGenerated={(html) => {
+          setPreviewHtml(html);
+        }}
+        initialConversationHistory={conversationHistory}
+      />
 
       <style jsx global>{`
         .react-resizable {
