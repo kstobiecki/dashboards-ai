@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -22,19 +22,29 @@ interface AddCardModalProps {
   onClose: () => void;
   onSave: () => void;
   onHtmlGenerated: (html: string) => void;
+  initialConversationHistory?: {
+    prompts: string;
+    html: string;
+  };
 }
 
-export function AddCardModal({ open, onClose, onSave, onHtmlGenerated }: AddCardModalProps) {
+export function AddCardModal({ open, onClose, onSave, onHtmlGenerated, initialConversationHistory }: AddCardModalProps) {
   const [prompt, setPrompt] = useState('');
   const [isResizablePreviewOpen, setIsResizablePreviewOpen] = useState(false);
   const [generatedHtml, setGeneratedHtml] = useState<string>('');
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
-  const [conversationHistory, setConversationHistory] = useState<ConversationHistory>({
-    prompts: '',
-    html: ''
-  });
+  const [conversationHistory, setConversationHistory] = useState<ConversationHistory>(
+    initialConversationHistory || { prompts: '', html: '' }
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
+
+  useEffect(() => {
+    if (open && initialConversationHistory) {
+      setConversationHistory(initialConversationHistory);
+      setGeneratedHtml(initialConversationHistory.html);
+    }
+  }, [open, initialConversationHistory]);
 
   const handleBuild = async () => {
     if (!prompt.trim()) return;
@@ -110,7 +120,7 @@ export function AddCardModal({ open, onClose, onSave, onHtmlGenerated }: AddCard
     setPrompt('');
     setGeneratedHtml('');
     setFollowUpQuestions([]);
-    setConversationHistory({ prompts: '', html: '' });
+    setConversationHistory(initialConversationHistory || { prompts: '', html: '' });
     setErrorMessage('');
     setIsResizablePreviewOpen(false);
     onClose();

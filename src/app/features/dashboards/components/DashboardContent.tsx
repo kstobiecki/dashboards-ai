@@ -24,6 +24,7 @@ export const DashboardContent = () => {
   const [zIndexMap, setZIndexMap] = useState<Record<string, number>>({});
   const [nextZIndex, setNextZIndex] = useState(1);
   const [generatedHtml, setGeneratedHtml] = useState<string>('');
+  const [conversationHistory, setConversationHistory] = useState<{ prompts: string; html: string }>({ prompts: '', html: '' });
 
   useEffect(() => {
     if (selectedDashboard && selectedDashboard.boxes.length === 0) {
@@ -74,6 +75,7 @@ export const DashboardContent = () => {
       width: 300,
       height: 200,
       html: generatedHtml,
+      conversationHistory,
     };
     addBox(selectedDashboard.id, newBox);
     setZIndexMap(prev => ({
@@ -82,6 +84,7 @@ export const DashboardContent = () => {
     }));
     setNextZIndex(prev => prev + 1);
     setGeneratedHtml('');
+    setConversationHistory({ prompts: '', html: '' });
   };
 
   if (!selectedDashboard) {
@@ -311,6 +314,10 @@ export const DashboardContent = () => {
             isEditMode={isEditMode}
             zIndex={zIndexMap[box.id] || 1}
             onFocus={() => handleCardFocus(box.id)}
+            conversationHistory={box.conversationHistory}
+            onUpdate={(html, conversationHistory) => {
+              updateBox(selectedDashboard.id, box.id, { html, conversationHistory });
+            }}
           />
         ))
       )}
@@ -320,9 +327,14 @@ export const DashboardContent = () => {
         onClose={() => {
           setIsAddCardModalOpen(false);
           setGeneratedHtml('');
+          setConversationHistory({ prompts: '', html: '' });
         }}
         onSave={handleAddBox}
-        onHtmlGenerated={setGeneratedHtml}
+        onHtmlGenerated={(html) => {
+          setGeneratedHtml(html);
+          setConversationHistory(prev => ({ ...prev, html }));
+        }}
+        initialConversationHistory={conversationHistory}
       />
     </div>
   );
