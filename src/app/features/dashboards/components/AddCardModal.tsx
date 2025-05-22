@@ -130,9 +130,15 @@ export function AddCardModal({ open, onClose, onSave, onHtmlGenerated, initialCo
     <>
       <Dialog
         open={open}
-        onClose={handleClose}
+        onClose={(event, reason) => {
+          if (reason === 'backdropClick' || reason === 'escapeKeyDown') {
+            return;
+          }
+          handleClose();
+        }}
         maxWidth="md"
         fullWidth
+        disableEscapeKeyDown
         PaperProps={{
           sx: {
             backgroundColor: '#23232a',
