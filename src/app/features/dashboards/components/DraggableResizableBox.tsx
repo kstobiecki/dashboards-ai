@@ -38,6 +38,7 @@ export const DraggableResizableBox = ({
 }: DraggableResizableBoxProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState<string>('');
   const boxRef = useRef<HTMLDivElement>(null);
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'BOX',
@@ -63,6 +64,12 @@ export const DraggableResizableBox = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isDeleting]);
+
+  useEffect(() => {
+    if (isEditModalOpen) {
+      setPreviewHtml(htmlContent);
+    }
+  }, [isEditModalOpen, htmlContent]);
 
   const dragRef = (node: HTMLDivElement | null) => {
     drag(node);
@@ -91,11 +98,12 @@ export const DraggableResizableBox = ({
   };
 
   const handleEditSave = (html: string, newConversationHistory: { prompts: string; html: string }) => {
-    onUpdate(html, newConversationHistory);
+    onUpdate(html, { ...newConversationHistory, html });
     setIsEditModalOpen(false);
   };
 
   const handleEditClose = () => {
+    setPreviewHtml('');
     setIsEditModalOpen(false);
   };
 
@@ -261,11 +269,9 @@ export const DraggableResizableBox = ({
       <AddCardModal
         open={isEditModalOpen}
         onClose={handleEditClose}
-        onSave={() => handleEditSave(htmlContent, conversationHistory || { prompts: '', html: '' })}
+        onSave={() => handleEditSave(previewHtml, conversationHistory || { prompts: '', html: '' })}
         onHtmlGenerated={(html) => {
-          if (html !== htmlContent) {
-            handleEditSave(html, conversationHistory || { prompts: '', html: '' });
-          }
+          setPreviewHtml(html);
         }}
         initialConversationHistory={conversationHistory}
       />
