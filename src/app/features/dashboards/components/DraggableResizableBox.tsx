@@ -1,10 +1,11 @@
-import { Typography, IconButton, Box, Button } from '@mui/material';
-import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Box } from '@mui/material';
 import { useDrag } from 'react-dnd';
 import { ResizableBox } from 'react-resizable';
 import { useState, useEffect, useRef } from 'react';
 import 'react-resizable/css/styles.css';
 import { AddCardModal } from './AddCardModal';
+import { useDashboard } from '../context/DashboardContext';
+import { CardActionMenu } from './CardActionMenu';
 
 interface DraggableResizableBoxProps {
   id: string;
@@ -40,6 +41,8 @@ export const DraggableResizableBox = ({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [previewHtml, setPreviewHtml] = useState<string>('');
   const boxRef = useRef<HTMLDivElement>(null);
+  const { dashboards, selectedDashboard, cloneBox } = useDashboard();
+
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'BOX',
     item: () => {
@@ -74,27 +77,6 @@ export const DraggableResizableBox = ({
   const dragRef = (node: HTMLDivElement | null) => {
     drag(node);
     boxRef.current = node;
-  };
-
-  const handleDeleteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsDeleting(true);
-  };
-
-  const handleCancelDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsDeleting(false);
-  };
-
-  const handleConfirmDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDelete();
-    setIsDeleting(false);
-  };
-
-  const handleEditClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsEditModalOpen(true);
   };
 
   const handleEditSave = (html: string, newConversationHistory: { prompts: string; html: string }) => {
@@ -138,117 +120,31 @@ export const DraggableResizableBox = ({
             width: '100%', 
             position: 'relative',
             overflow: 'hidden',
-            '&:hover .action-button': {
+            '&:hover .action-button, & .action-button.visible': {
               opacity: 1,
             },
           }}
         >
-          {isEditMode && !isDeleting && (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 8,
-                left: 8,
-                display: 'flex',
-                gap: 1,
-                zIndex: 2,
-              }}
-            >
-              <IconButton
-                size="small"
-                onClick={handleEditClick}
-                className="action-button"
-                sx={{
-                  color: '#6b7280',
-                  opacity: 0,
-                  transition: 'opacity 0.2s ease-in-out',
-                  '&:hover': {
-                    color: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                  },
-                }}
-              >
-                <EditIcon sx={{ fontSize: 28 }} />
-              </IconButton>
-              <IconButton
-                size="small"
-                onClick={handleDeleteClick}
-                className="action-button"
-                sx={{
-                  color: '#6b7280',
-                  opacity: 0,
-                  transition: 'opacity 0.2s ease-in-out',
-                  '&:hover': {
-                    color: '#ef4444',
-                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                  },
-                }}
-              >
-                <DeleteIcon sx={{ fontSize: 28 }} />
-              </IconButton>
-            </Box>
-          )}
-          {isDeleting && (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 2,
-                zIndex: 3,
-                opacity: 0,
-                animation: 'fadeIn 0.2s ease-in-out forwards',
-                '@keyframes fadeIn': {
-                  '0%': {
-                    opacity: 0,
-                  },
-                  '100%': {
-                    opacity: 1,
-                  },
-                },
-              }}
-            >
-              <Typography sx={{ color: '#e5e7eb', mb: 1 }}>
-                Delete this card?
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 2 }}>
-                <Button
-                  variant="outlined"
-                  onClick={handleCancelDelete}
-                  sx={{
-                    color: '#e5e7eb',
-                    borderColor: 'rgba(255, 255, 255, 0.2)',
-                    '&:hover': {
-                      borderColor: 'rgba(255, 255, 255, 0.4)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    },
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={handleConfirmDelete}
-                  sx={{
-                    backgroundColor: '#ef4444',
-                    color: '#ffffff',
-                    '&:hover': {
-                      backgroundColor: '#dc2626',
-                    },
-                  }}
-                >
-                  Delete
-                </Button>
-              </Box>
-            </Box>
-          )}
+          <CardActionMenu
+            isEditMode={isEditMode}
+            isDeleting={isDeleting}
+            isEditModalOpen={isEditModalOpen}
+            onDelete={onDelete}
+            onEditClick={() => setIsEditModalOpen(true)}
+            onDeleteClick={() => setIsDeleting(true)}
+            onCancelDelete={() => setIsDeleting(false)}
+            onConfirmDelete={() => {
+              onDelete();
+              setIsDeleting(false);
+            }}
+            availableDashboards={dashboards.filter(d => d.id !== selectedDashboard?.id)}
+            onMoveToDashboard={(targetDashboardId) => {
+              if (selectedDashboard) {
+                cloneBox(selectedDashboard.id, targetDashboardId, id);
+              }
+            }}
+          />
+
           <iframe
             srcDoc={htmlContent}
             style={{
