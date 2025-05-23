@@ -14,6 +14,11 @@ export interface Box {
     prompts: string;
     html: string;
   };
+  intervalSettings?: {
+    isEnabled: boolean;
+    interval: number; // in minutes
+    prompt: string;
+  };
 }
 
 export interface Dashboard {
