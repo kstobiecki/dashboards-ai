@@ -9,12 +9,10 @@ import {
   TextField,
   DialogContentText,
   CircularProgress,
-  FormControlLabel,
   Checkbox,
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
 } from '@mui/material';
 import { ResizablePreview } from './ResizablePreview';
 
