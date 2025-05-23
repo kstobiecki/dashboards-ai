@@ -9,6 +9,12 @@ import {
   TextField,
   DialogContentText,
   CircularProgress,
+  FormControlLabel,
+  Checkbox,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import { ResizablePreview } from './ResizablePreview';
 
@@ -20,15 +26,20 @@ interface ConversationHistory {
 interface AddCardModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: () => void;
+  onSave: (intervalSettings: { isEnabled: boolean; interval: number; prompt: string }) => void;
   onHtmlGenerated: (html: string) => void;
   initialConversationHistory?: {
     prompts: string;
     html: string;
   };
+  initialIntervalSettings?: {
+    isEnabled: boolean;
+    interval: number;
+    prompt: string;
+  };
 }
 
-export function AddCardModal({ open, onClose, onSave, onHtmlGenerated, initialConversationHistory }: AddCardModalProps) {
+export function AddCardModal({ open, onClose, onSave, onHtmlGenerated, initialConversationHistory, initialIntervalSettings }: AddCardModalProps) {
   const [prompt, setPrompt] = useState('');
   const [isResizablePreviewOpen, setIsResizablePreviewOpen] = useState(false);
   const [generatedHtml, setGeneratedHtml] = useState<string>('');
@@ -38,6 +49,11 @@ export function AddCardModal({ open, onClose, onSave, onHtmlGenerated, initialCo
   );
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [intervalSettings, setIntervalSettings] = useState({
+    isEnabled: initialIntervalSettings?.isEnabled || false,
+    interval: initialIntervalSettings?.interval || 1,
+    prompt: initialIntervalSettings?.prompt || '',
+  });
 
   useEffect(() => {
     if (open && initialConversationHistory) {
@@ -45,6 +61,12 @@ export function AddCardModal({ open, onClose, onSave, onHtmlGenerated, initialCo
       setGeneratedHtml(initialConversationHistory.html);
     }
   }, [open, initialConversationHistory]);
+
+  useEffect(() => {
+    if (open && initialIntervalSettings) {
+      setIntervalSettings(initialIntervalSettings);
+    }
+  }, [open, initialIntervalSettings]);
 
   const handleBuild = async () => {
     if (!prompt.trim()) return;
@@ -98,13 +120,18 @@ export function AddCardModal({ open, onClose, onSave, onHtmlGenerated, initialCo
   };
 
   const handleSave = () => {
-    onSave();
+    onSave(intervalSettings);
     // Reset state
     setPrompt('');
     setGeneratedHtml('');
     setFollowUpQuestions([]);
-    setConversationHistory({ prompts: '', html: '' });
+    setConversationHistory(initialConversationHistory || { prompts: '', html: '' });
     setErrorMessage('');
+    setIntervalSettings({
+      isEnabled: false,
+      interval: 1,
+      prompt: '',
+    });
     onClose();
   };
 
@@ -122,6 +149,11 @@ export function AddCardModal({ open, onClose, onSave, onHtmlGenerated, initialCo
     setFollowUpQuestions([]);
     setConversationHistory(initialConversationHistory || { prompts: '', html: '' });
     setErrorMessage('');
+    setIntervalSettings({
+      isEnabled: false,
+      interval: 1,
+      prompt: '',
+    });
     setIsResizablePreviewOpen(false);
     onClose();
   };
@@ -248,6 +280,74 @@ export function AddCardModal({ open, onClose, onSave, onHtmlGenerated, initialCo
                 >
                   {isLoading ? 'Generating...' : followUpQuestions.length > 0 ? 'Submit Answer' : 'Build'}
                 </Button>
+              </Box>
+
+              {/* Interval Settings */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
+                <TextField
+                  value={intervalSettings.prompt}
+                  onChange={(e) => setIntervalSettings(prev => ({ ...prev, prompt: e.target.value }))}
+                  placeholder="Interval prompt..."
+                  disabled={!intervalSettings.isEnabled}
+                  sx={{
+                    flex: 1,
+                    '& .MuiInputBase-root': {
+                      color: '#e5e7eb',
+                      backgroundColor: '#232326',
+                    },
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#27272a',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#27272a',
+                      },
+                    },
+                  }}
+                />
+                <FormControl sx={{ minWidth: 120 }}>
+                  <Select
+                    value={intervalSettings.interval}
+                    onChange={(e) => setIntervalSettings(prev => ({ ...prev, interval: Number(e.target.value) }))}
+                    disabled={!intervalSettings.isEnabled}
+                    displayEmpty
+                    sx={{
+                      color: '#e5e7eb',
+                      '.MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#27272a',
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#27272a',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#27272a',
+                      },
+                      '.MuiSvgIcon-root': {
+                        color: '#6b7280',
+                      },
+                    }}
+                  >
+                    <MenuItem value={1}>1 minute</MenuItem>
+                    <MenuItem value={5}>5 minutes</MenuItem>
+                    <MenuItem value={15}>15 minutes</MenuItem>
+                    <MenuItem value={30}>30 minutes</MenuItem>
+                    <MenuItem value={60}>1 hour</MenuItem>
+                    <MenuItem value={180}>3 hours</MenuItem>
+                    <MenuItem value={360}>6 hours</MenuItem>
+                    <MenuItem value={720}>12 hours</MenuItem>
+                    <MenuItem value={1440}>24 hours</MenuItem>
+                  </Select>
+                </FormControl>
+                <Checkbox
+                  checked={intervalSettings.isEnabled}
+                  onChange={(e) => setIntervalSettings(prev => ({ ...prev, isEnabled: e.target.checked }))}
+                  sx={{
+                    color: '#6b7280',
+                    '&.Mui-checked': {
+                      color: '#e5e7eb',
+                    },
+                  }}
+                />
               </Box>
             </Box>
 

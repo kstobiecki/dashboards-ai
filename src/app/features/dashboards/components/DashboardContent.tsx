@@ -25,6 +25,7 @@ export const DashboardContent = () => {
   const [nextZIndex, setNextZIndex] = useState(1);
   const [generatedHtml, setGeneratedHtml] = useState<string>('');
   const [conversationHistory, setConversationHistory] = useState<{ prompts: string; html: string }>({ prompts: '', html: '' });
+  const [intervalSettings, setIntervalSettings] = useState({ isEnabled: false, interval: 1, prompt: '' });
 
   useEffect(() => {
     if (selectedDashboard && selectedDashboard.boxes.length === 0) {
@@ -64,7 +65,7 @@ export const DashboardContent = () => {
     drop(node);
   };
 
-  const handleAddBox = () => {
+  const handleAddBox = (intervalSettings: { isEnabled: boolean; interval: number; prompt: string }) => {
     if (!selectedDashboard || !isEditMode) return;
     if (selectedDashboard.boxes.length >= 20) return;
     
@@ -76,6 +77,7 @@ export const DashboardContent = () => {
       height: 380,
       html: generatedHtml,
       conversationHistory,
+      intervalSettings,
     };
     addBox(selectedDashboard.id, newBox);
     setZIndexMap(prev => ({
@@ -85,6 +87,7 @@ export const DashboardContent = () => {
     setNextZIndex(prev => prev + 1);
     setGeneratedHtml('');
     setConversationHistory({ prompts: '', html: '' });
+    setIntervalSettings({ isEnabled: false, interval: 1, prompt: '' });
   };
 
   if (!selectedDashboard) {
@@ -315,9 +318,10 @@ export const DashboardContent = () => {
             zIndex={zIndexMap[box.id] || 1}
             onFocus={() => handleCardFocus(box.id)}
             conversationHistory={box.conversationHistory}
-            onUpdate={(html, conversationHistory) => {
-              updateBox(selectedDashboard.id, box.id, { html, conversationHistory });
+            onUpdate={(html, conversationHistory, intervalSettings) => {
+              updateBox(selectedDashboard.id, box.id, { html, conversationHistory, intervalSettings });
             }}
+            intervalSettings={box.intervalSettings}
           />
         ))
       )}
@@ -328,6 +332,7 @@ export const DashboardContent = () => {
           setIsAddCardModalOpen(false);
           setGeneratedHtml('');
           setConversationHistory({ prompts: '', html: '' });
+          setIntervalSettings({ isEnabled: false, interval: 1, prompt: '' });
         }}
         onSave={handleAddBox}
         onHtmlGenerated={(html) => {
@@ -335,6 +340,7 @@ export const DashboardContent = () => {
           setConversationHistory(prev => ({ ...prev, html }));
         }}
         initialConversationHistory={conversationHistory}
+        initialIntervalSettings={intervalSettings}
       />
     </div>
   );

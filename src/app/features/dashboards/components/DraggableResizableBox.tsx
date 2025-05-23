@@ -6,6 +6,7 @@ import 'react-resizable/css/styles.css';
 import { AddCardModal } from './AddCardModal';
 import { useDashboard } from '../context/DashboardContext';
 import { CardActionMenu } from './CardActionMenu';
+import CircularProgress from '@mui/material/CircularProgress';
 
 interface DraggableResizableBoxProps {
   id: string;
@@ -21,7 +22,12 @@ interface DraggableResizableBoxProps {
     prompts: string;
     html: string;
   };
-  onUpdate: (html: string, conversationHistory: { prompts: string; html: string }) => void;
+  onUpdate: (html: string, conversationHistory: { prompts: string; html: string }, intervalSettings?: { isEnabled: boolean; interval: number; prompt: string }) => void;
+  intervalSettings?: {
+    isEnabled: boolean;
+    interval: number;
+    prompt: string;
+  };
 }
 
 export const DraggableResizableBox = ({ 
@@ -36,12 +42,65 @@ export const DraggableResizableBox = ({
   onFocus,
   conversationHistory,
   onUpdate,
+  intervalSettings,
 }: DraggableResizableBoxProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [previewHtml, setPreviewHtml] = useState<string>('');
   const boxRef = useRef<HTMLDivElement>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const { dashboards, selectedDashboard, cloneBox } = useDashboard();
+  const [isIntervalLoading, setIsIntervalLoading] = useState(false);
+
+  const executeIntervalPrompt = async () => {
+    if (!intervalSettings?.isEnabled || !intervalSettings?.prompt) return;
+    setIsIntervalLoading(true);
+    try {
+      const response = await fetch('/api/generate-card', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: intervalSettings.prompt,
+          conversationHistory,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to generate card');
+      }
+      if (data.html) {
+        onUpdate(data.html, {
+          prompts: conversationHistory?.prompts ? `${conversationHistory.prompts}\n${intervalSettings.prompt}` : intervalSettings.prompt,
+          html: data.html,
+        }, intervalSettings);
+      }
+    } catch (error) {
+      console.error('Error executing interval prompt:', error);
+    } finally {
+      setIsIntervalLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (intervalSettings?.isEnabled && intervalSettings?.prompt) {
+      // Execute immediately when enabled
+      executeIntervalPrompt();
+
+      // Set up interval
+      intervalRef.current = setInterval(() => {
+        executeIntervalPrompt();
+      }, intervalSettings.interval * 60 * 1000); // Convert minutes to milliseconds
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [intervalSettings?.isEnabled, intervalSettings?.interval, intervalSettings?.prompt]);
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'BOX',
@@ -79,8 +138,12 @@ export const DraggableResizableBox = ({
     boxRef.current = node;
   };
 
-  const handleEditSave = (html: string, newConversationHistory: { prompts: string; html: string }) => {
-    onUpdate(html, { ...newConversationHistory, html });
+  const handleEditSave = (
+    html: string,
+    newConversationHistory: { prompts: string; html: string },
+    newIntervalSettings: { isEnabled: boolean; interval: number; prompt: string }
+  ) => {
+    onUpdate(html, { ...newConversationHistory, html }, newIntervalSettings);
     setIsEditModalOpen(false);
   };
 
@@ -125,51 +188,79 @@ export const DraggableResizableBox = ({
             },
           }}
         >
-          <CardActionMenu
-            isEditMode={isEditMode}
-            isDeleting={isDeleting}
-            isEditModalOpen={isEditModalOpen}
-            onDelete={onDelete}
-            onEditClick={() => setIsEditModalOpen(true)}
-            onDeleteClick={() => setIsDeleting(true)}
-            onCancelDelete={() => setIsDeleting(false)}
-            onConfirmDelete={() => {
-              onDelete();
-              setIsDeleting(false);
-            }}
-            availableDashboards={dashboards.filter(d => d.id !== selectedDashboard?.id)}
-            onMoveToDashboard={(targetDashboardId) => {
-              if (selectedDashboard) {
-                cloneBox(selectedDashboard.id, targetDashboardId, id);
-              }
-            }}
-          />
-
-          <iframe
-            srcDoc={htmlContent}
-            style={{
+          {/* Loader overlay when not in edit mode and interval loading */}
+          {!isEditMode && isIntervalLoading && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                backgroundColor: 'rgba(35, 35, 38, 0.5)',
+                zIndex: 2000,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                pointerEvents: 'auto',
+              }}
+            >
+              <CircularProgress sx={{ color: '#e5e7eb' }} />
+            </Box>
+          )}
+          <Box
+            sx={{
               width: '100%',
               height: '100%',
-              border: 'none',
-              backgroundColor: 'transparent',
-              overflow: 'auto',
-              pointerEvents: isEditMode ? 'none' : 'auto',
-              display: 'block',
+              pointerEvents: !isEditMode && isIntervalLoading ? 'none' : 'auto',
             }}
-            sandbox="allow-scripts allow-same-origin allow-popups"
-            title={`iframe-${id}`}
-          />
+          >
+            <CardActionMenu
+              isEditMode={isEditMode}
+              isDeleting={isDeleting}
+              isEditModalOpen={isEditModalOpen}
+              onDelete={onDelete}
+              onEditClick={() => setIsEditModalOpen(true)}
+              onDeleteClick={() => setIsDeleting(true)}
+              onCancelDelete={() => setIsDeleting(false)}
+              onConfirmDelete={() => {
+                onDelete();
+                setIsDeleting(false);
+              }}
+              availableDashboards={dashboards.filter(d => d.id !== selectedDashboard?.id)}
+              onMoveToDashboard={(targetDashboardId) => {
+                if (selectedDashboard) {
+                  cloneBox(selectedDashboard.id, targetDashboardId, id);
+                }
+              }}
+            />
+            <iframe
+              srcDoc={htmlContent}
+              style={{
+                width: '100%',
+                height: '100%',
+                border: 'none',
+                backgroundColor: 'transparent',
+                overflow: 'auto',
+                pointerEvents: isEditMode ? 'none' : 'auto',
+                display: 'block',
+              }}
+              sandbox="allow-scripts allow-same-origin allow-popups"
+              title={`iframe-${id}`}
+            />
+          </Box>
         </Box>
       </ResizableBox>
 
       <AddCardModal
         open={isEditModalOpen}
         onClose={handleEditClose}
-        onSave={() => handleEditSave(previewHtml, conversationHistory || { prompts: '', html: '' })}
+        onSave={(newIntervalSettings) => handleEditSave(previewHtml, conversationHistory || { prompts: '', html: '' }, newIntervalSettings)}
         onHtmlGenerated={(html) => {
           setPreviewHtml(html);
         }}
         initialConversationHistory={conversationHistory}
+        initialIntervalSettings={intervalSettings}
       />
 
       <style jsx global>{`
