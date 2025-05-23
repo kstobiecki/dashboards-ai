@@ -1,5 +1,4 @@
-import { Typography, IconButton, Box, Button, Menu, MenuItem } from '@mui/material';
-import { Delete as DeleteIcon, Edit as EditIcon, ContentCopy as ContentCopyIcon } from '@mui/icons-material';
+import { Box } from '@mui/material';
 import { useDrag } from 'react-dnd';
 import { ResizableBox } from 'react-resizable';
 import { useState, useEffect, useRef } from 'react';
