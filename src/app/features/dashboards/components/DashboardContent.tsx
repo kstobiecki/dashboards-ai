@@ -230,10 +230,7 @@ export const DashboardContent = () => {
                 backgroundColor: '#23232a',
                 color: '#e5e7eb',
                 transition: 'opacity 0.3s ease-in-out',
-                opacity: isEditMode ? 1 : (isHovering ? 1 : 0),
-                '&:hover': {
-                  backgroundColor: '#2d2d35',
-                },
+                opacity: 1
               }}
             >
               {isEditMode ? <CheckIcon /> : <EditIcon />}
