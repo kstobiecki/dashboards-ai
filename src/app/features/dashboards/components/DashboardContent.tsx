@@ -7,6 +7,7 @@ import { DraggableResizableBox } from './DraggableResizableBox';
 import { useDrop } from 'react-dnd';
 import { AddCardModal } from './AddCardModal';
 import { CustomDragLayer } from './CustomDragLayer';
+import { DashboardActionMenu } from './DashboardActionMenu';
 
 export const DashboardContent = () => {
   const { 
@@ -214,80 +215,19 @@ export const DashboardContent = () => {
       <div ref={scrollContainerRef} tabIndex={0} style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'auto', outline: 'none' }}>
         {/* Buttons always visible at top-right of viewport */}
         {!isEmptyDashboard && (
-          <Box 
-            sx={{ 
-              position: 'fixed',
-              top: 24,
-              right: 24,
-              display: 'flex',
-              gap: 2,
-              zIndex: 2000,
-            }}
-          >
-            <IconButton
-              onClick={() => setIsEditMode(!isEditMode)}
-              sx={{
-                backgroundColor: '#23232a',
-                color: '#e5e7eb',
-                transition: 'opacity 0.3s ease-in-out',
-                opacity: 1
-              }}
-            >
-              {isEditMode ? <CheckIcon /> : <EditIcon />}
-            </IconButton>
-            {/* Zoom Out Button */}
-            <IconButton
-              onClick={() => {
-                const currentDisplay = zoomToDisplay(zoom);
-                const newDisplay = Math.max(minDisplay, currentDisplay - displayStep);
-                handleSetZoom(displayToZoom(newDisplay));
-              }}
-              sx={{ backgroundColor: '#23232a', color: '#e5e7eb', '&:hover': { backgroundColor: '#2d2d35' } }}
-              aria-label="Zoom out"
-            >
-              <ZoomOutIcon />
-            </IconButton>
-            {/* Zoom Level Display */}
-            <Box sx={{ display: 'flex', alignItems: 'center', color: '#e5e7eb', px: 1, fontWeight: 500, fontSize: 16, minWidth: 48, justifyContent: 'center' }}>
-              {zoomToDisplay(zoom)}%
-            </Box>
-            {/* Zoom In Button */}
-            <IconButton
-              onClick={() => {
-                const currentDisplay = zoomToDisplay(zoom);
-                const newDisplay = Math.min(maxDisplay, currentDisplay + displayStep);
-                handleSetZoom(displayToZoom(newDisplay));
-              }}
-              sx={{ backgroundColor: '#23232a', color: '#e5e7eb', '&:hover': { backgroundColor: '#2d2d35' } }}
-              aria-label="Zoom in"
-            >
-              <ZoomInIcon />
-            </IconButton>
-            {isEditMode && (
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => setIsAddCardModalOpen(true)}
-                disabled={selectedDashboard.boxes.length >= 20}
-                sx={{
-                  backgroundColor: '#23232a',
-                  color: '#e5e7eb',
-                  '&:hover': {
-                    backgroundColor: '#2d2d35',
-                  },
-                  '& .MuiSvgIcon-root': {
-                    color: '#6b7280',
-                  },
-                  '&.Mui-disabled': {
-                    backgroundColor: '#1a1a1d',
-                    color: 'rgba(255, 255, 255, 0.3)',
-                  },
-                }}
-              >
-                Add Card
-              </Button>
-            )}
-          </Box>
+          <DashboardActionMenu
+            isEditMode={isEditMode}
+            setIsEditMode={setIsEditMode}
+            zoom={zoom}
+            setZoom={handleSetZoom}
+            minDisplay={minDisplay}
+            maxDisplay={maxDisplay}
+            displayStep={displayStep}
+            zoomToDisplay={zoomToDisplay}
+            displayToZoom={displayToZoom}
+            onAddCardClick={() => setIsAddCardModalOpen(true)}
+            canAddCard={selectedDashboard.boxes.length < 20}
+          />
         )}
         <div 
           ref={dropRef} 
