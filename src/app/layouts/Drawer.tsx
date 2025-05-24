@@ -97,23 +97,55 @@ export const Drawer = ({
             />
           </Box>
         );
-      case 'analytics':
+      case 'explore':
         return (
-          <Typography variant="h6" component="div" sx={{ mb: 3, color: '#e5e7eb' }}>
-            Analytics Overview
-          </Typography>
+          <Box sx={{ p: 3 }}>
+            <Typography variant="h6" component="div" sx={{ mb: 3, color: '#e5e7eb' }}>
+              Explore
+            </Typography>
+          </Box>
         );
-      case 'users':
+      case 'hosting':
         return (
-          <Typography variant="h6" component="div" sx={{ mb: 3, color: '#e5e7eb' }}>
-            User Management
-          </Typography>
+          <Box sx={{ p: 3 }}>
+            <Typography variant="h6" component="div" sx={{ mb: 3, color: '#e5e7eb' }}>
+              Hosting
+            </Typography>
+            <Typography sx={{ color: '#6b7280', mb: 2 }}>
+              Future Release
+            </Typography>
+            <Typography sx={{ color: '#e5e7eb', lineHeight: 1.6 }}>
+              This feature will enable users to host their dashboards under custom domains, making them publicly accessible. You'll be able to share your dashboards with anyone through a unique URL, perfect for team collaboration or public presentations.
+            </Typography>
+          </Box>
+        );
+      case 'integrations':
+        return (
+          <Box sx={{ p: 3 }}>
+            <Typography variant="h6" component="div" sx={{ mb: 3, color: '#e5e7eb' }}>
+              Integrations
+            </Typography>
+            <Typography sx={{ color: '#6b7280', mb: 2 }}>
+              Future Release
+            </Typography>
+            <Typography sx={{ color: '#e5e7eb', lineHeight: 1.6 }}>
+              Coming soon: Seamless integration with popular services like Google Calendar, Slack, and more. Display real-time data from your favorite tools directly in your dashboard cards, creating a unified view of all your important information.
+            </Typography>
+          </Box>
         );
       case 'settings':
         return (
-          <Typography variant="h6" component="div" sx={{ mb: 3, color: '#e5e7eb' }}>
-            Settings & Preferences
-          </Typography>
+          <Box sx={{ p: 3 }}>
+            <Typography variant="h6" component="div" sx={{ mb: 3, color: '#e5e7eb' }}>
+              Settings
+            </Typography>
+            <Typography sx={{ color: '#6b7280', mb: 2 }}>
+              Future Release
+            </Typography>
+            <Typography sx={{ color: '#e5e7eb', lineHeight: 1.6 }}>
+              Manage your account settings, view usage statistics, and customize your dashboard experience. Track your prompt usage, manage API keys, and configure your preferences all in one place.
+            </Typography>
+          </Box>
         );
       default:
         return null;

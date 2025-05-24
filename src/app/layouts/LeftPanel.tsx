@@ -1,8 +1,9 @@
 import { Box, List, ListItemButton, ListItemIcon, Typography } from '@mui/material';
 import Image from 'next/image';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import PeopleIcon from '@mui/icons-material/People';
+import ExploreIcon from '@mui/icons-material/Explore';
+import CloudIcon from '@mui/icons-material/Cloud';
+import ExtensionIcon from '@mui/icons-material/Extension';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 interface MenuItem {
@@ -19,8 +20,9 @@ interface LeftPanelProps {
 
 const menuItems: MenuItem[] = [
   { text: 'Dashboards', icon: <DashboardIcon />, id: 'dashboard' },
-  { text: 'Analytics', icon: <BarChartIcon />, id: 'analytics' },
-  { text: 'Users', icon: <PeopleIcon />, id: 'users' },
+  { text: 'Explore', icon: <ExploreIcon />, id: 'explore' },
+  { text: 'Hosting', icon: <CloudIcon />, id: 'hosting' },
+  { text: 'Integrations', icon: <ExtensionIcon />, id: 'integrations' },
   { text: 'Settings', icon: <SettingsIcon />, id: 'settings' },
 ];
 
