@@ -1,11 +1,12 @@
 import { Box, Typography, Button, IconButton } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Check as CheckIcon } from '@mui/icons-material';
+import { Add as AddIcon, Edit as EditIcon, Check as CheckIcon, ZoomIn as ZoomInIcon, ZoomOut as ZoomOutIcon } from '@mui/icons-material';
 import { useDashboard } from '../context/DashboardContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { CreateDashboardModal } from './CreateDashboardModal';
 import { DraggableResizableBox } from './DraggableResizableBox';
 import { useDrop } from 'react-dnd';
 import { AddCardModal } from './AddCardModal';
+import { CustomDragLayer } from './CustomDragLayer';
 
 export const DashboardContent = () => {
   const { 
@@ -16,6 +17,8 @@ export const DashboardContent = () => {
     addBox,
     updateBox,
     deleteBox,
+    setZoomForDashboard,
+    getZoomForDashboard,
   } = useDashboard();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
@@ -26,6 +29,7 @@ export const DashboardContent = () => {
   const [generatedHtml, setGeneratedHtml] = useState<string>('');
   const [conversationHistory, setConversationHistory] = useState<{ prompts: string; html: string }>({ prompts: '', html: '' });
   const [intervalSettings, setIntervalSettings] = useState({ isEnabled: false, interval: 1, prompt: '' });
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (selectedDashboard && selectedDashboard.boxes.length === 0) {
@@ -53,8 +57,8 @@ export const DashboardContent = () => {
       if (!box) return;
 
       const newPosition = {
-        x: box.x + delta.x,
-        y: box.y + delta.y,
+        x: box.x + delta.x / zoom,
+        y: box.y + delta.y / zoom,
       };
       
       updateBox(selectedDashboard.id, item.id, newPosition);
@@ -88,6 +92,18 @@ export const DashboardContent = () => {
     setGeneratedHtml('');
     setConversationHistory({ prompts: '', html: '' });
     setIntervalSettings({ isEnabled: false, interval: 1, prompt: '' });
+  };
+
+  // Helper to map zoom to display percent: 0.5 = 10%, 1.0 = 100%
+  const zoomToDisplay = (zoom: number) => Math.round(((zoom - 0.5) / 0.5) * 90 + 10);
+  const displayToZoom = (display: number) => ((display - 10) / 90) * 0.5 + 0.5;
+  const minDisplay = 10;
+  const maxDisplay = 100;
+  const displayStep = 10;
+
+  const zoom = selectedDashboard ? getZoomForDashboard(selectedDashboard.id) : 1;
+  const handleSetZoom = (newZoom: number) => {
+    if (selectedDashboard) setZoomForDashboard(selectedDashboard.id, newZoom);
   };
 
   if (!selectedDashboard) {
@@ -193,51 +209,176 @@ export const DashboardContent = () => {
   const isEmptyDashboard = selectedDashboard.boxes.length === 0;
   
   return (
-    <div 
-      ref={dropRef} 
-      data-drop-container
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
-      style={{ 
-        minHeight: '100vh', 
-        position: 'relative', 
-        backgroundColor: '#18181b', 
-        padding: 24,
-        width: '100%',
-        height: '100%',
-      }}
-    >
-      {!isEmptyDashboard && (
-        <Box 
-          sx={{ 
-            position: 'fixed',
-            top: 24,
-            right: 24,
-            display: 'flex',
-            gap: 2,
-            zIndex: 2000,
-          }}
-        >
-          <IconButton
-            onClick={() => setIsEditMode(!isEditMode)}
-            sx={{
-              backgroundColor: '#23232a',
-              color: '#e5e7eb',
-              transition: 'opacity 0.3s ease-in-out',
-              opacity: isEditMode ? 1 : (isHovering ? 1 : 0),
-              '&:hover': {
-                backgroundColor: '#2d2d35',
-              },
+    <>
+      <CustomDragLayer zoom={zoom} boxes={selectedDashboard ? selectedDashboard.boxes : []} />
+      <div ref={scrollContainerRef} tabIndex={0} style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'auto', outline: 'none' }}>
+        {/* Buttons always visible at top-right of viewport */}
+        {!isEmptyDashboard && (
+          <Box 
+            sx={{ 
+              position: 'fixed',
+              top: 24,
+              right: 24,
+              display: 'flex',
+              gap: 2,
+              zIndex: 2000,
             }}
           >
-            {isEditMode ? <CheckIcon /> : <EditIcon />}
-          </IconButton>
-          {isEditMode && (
+            <IconButton
+              onClick={() => setIsEditMode(!isEditMode)}
+              sx={{
+                backgroundColor: '#23232a',
+                color: '#e5e7eb',
+                transition: 'opacity 0.3s ease-in-out',
+                opacity: isEditMode ? 1 : (isHovering ? 1 : 0),
+                '&:hover': {
+                  backgroundColor: '#2d2d35',
+                },
+              }}
+            >
+              {isEditMode ? <CheckIcon /> : <EditIcon />}
+            </IconButton>
+            {/* Zoom Out Button */}
+            <IconButton
+              onClick={() => {
+                const currentDisplay = zoomToDisplay(zoom);
+                const newDisplay = Math.max(minDisplay, currentDisplay - displayStep);
+                handleSetZoom(displayToZoom(newDisplay));
+              }}
+              sx={{ backgroundColor: '#23232a', color: '#e5e7eb', '&:hover': { backgroundColor: '#2d2d35' } }}
+              aria-label="Zoom out"
+            >
+              <ZoomOutIcon />
+            </IconButton>
+            {/* Zoom Level Display */}
+            <Box sx={{ display: 'flex', alignItems: 'center', color: '#e5e7eb', px: 1, fontWeight: 500, fontSize: 16, minWidth: 48, justifyContent: 'center' }}>
+              {zoomToDisplay(zoom)}%
+            </Box>
+            {/* Zoom In Button */}
+            <IconButton
+              onClick={() => {
+                const currentDisplay = zoomToDisplay(zoom);
+                const newDisplay = Math.min(maxDisplay, currentDisplay + displayStep);
+                handleSetZoom(displayToZoom(newDisplay));
+              }}
+              sx={{ backgroundColor: '#23232a', color: '#e5e7eb', '&:hover': { backgroundColor: '#2d2d35' } }}
+              aria-label="Zoom in"
+            >
+              <ZoomInIcon />
+            </IconButton>
+            {isEditMode && (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setIsAddCardModalOpen(true)}
+                disabled={selectedDashboard.boxes.length >= 20}
+                sx={{
+                  backgroundColor: '#23232a',
+                  color: '#e5e7eb',
+                  '&:hover': {
+                    backgroundColor: '#2d2d35',
+                  },
+                  '& .MuiSvgIcon-root': {
+                    color: '#6b7280',
+                  },
+                  '&.Mui-disabled': {
+                    backgroundColor: '#1a1a1d',
+                    color: 'rgba(255, 255, 255, 0.3)',
+                  },
+                }}
+              >
+                Add Card
+              </Button>
+            )}
+          </Box>
+        )}
+        <div 
+          ref={dropRef} 
+          data-drop-container
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
+          style={{ 
+            minHeight: '300vh', 
+            minWidth: '300vw',
+            position: 'relative', 
+            backgroundColor: '#18181b', 
+            padding: 24,
+            width: '100%',
+            height: '100%',
+            transform: `scale(${zoom})`,
+            transformOrigin: '0 0',
+          }}
+        >
+          {!isEmptyDashboard && selectedDashboard.boxes.map((box) => (
+            <DraggableResizableBox
+              key={box.id}
+              id={box.id}
+              htmlContent={box.html || ''}
+              position={{ x: box.x, y: box.y }}
+              size={{ width: box.width, height: box.height }}
+              onResize={(newSize) => {
+                updateBox(selectedDashboard.id, box.id, newSize);
+              }}
+              onDelete={() => {
+                deleteBox(selectedDashboard.id, box.id);
+              }}
+              isEditMode={isEditMode}
+              zIndex={zIndexMap[box.id] || 1}
+              onFocus={() => handleCardFocus(box.id)}
+              conversationHistory={box.conversationHistory}
+              onUpdate={(html, conversationHistory, intervalSettings) => {
+                updateBox(selectedDashboard.id, box.id, { html, conversationHistory, intervalSettings });
+              }}
+              intervalSettings={box.intervalSettings}
+            />
+          ))}
+
+          <AddCardModal
+            open={isAddCardModalOpen}
+            onClose={() => {
+              setIsAddCardModalOpen(false);
+              setGeneratedHtml('');
+              setConversationHistory({ prompts: '', html: '' });
+              setIntervalSettings({ isEnabled: false, interval: 1, prompt: '' });
+            }}
+            onSave={handleAddBox}
+            onHtmlGenerated={(html) => {
+              setGeneratedHtml(html);
+              setConversationHistory(prev => ({ ...prev, html }));
+            }}
+            initialConversationHistory={conversationHistory}
+            initialIntervalSettings={intervalSettings}
+          />
+        </div>
+        {isEmptyDashboard && !isAddCardModalOpen && (
+          <Box
+            sx={{
+              position: 'fixed',
+              top: '50%',
+              left: 'calc(50% + 35px)',
+              transform: 'translate(-50%, -50%)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 2,
+              zIndex: 3000,
+              background: 'none',
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{
+                color: '#6b7280',
+                textAlign: 'center',
+                mb: 2,
+              }}
+            >
+              No cards yet. Add your first card to get started.
+            </Typography>
             <Button
               variant="contained"
               startIcon={<AddIcon />}
               onClick={() => setIsAddCardModalOpen(true)}
-              disabled={selectedDashboard.boxes.length >= 20}
               sx={{
                 backgroundColor: '#23232a',
                 color: '#e5e7eb',
@@ -247,101 +388,13 @@ export const DashboardContent = () => {
                 '& .MuiSvgIcon-root': {
                   color: '#6b7280',
                 },
-                '&.Mui-disabled': {
-                  backgroundColor: '#1a1a1d',
-                  color: 'rgba(255, 255, 255, 0.3)',
-                },
               }}
             >
               Add Card
             </Button>
-          )}
-        </Box>
-      )}
-
-      {isEmptyDashboard ? (
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 2,
-          }}
-        >
-          <Typography
-            variant="h6"
-            sx={{
-              color: '#6b7280',
-              textAlign: 'center',
-              mb: 2,
-            }}
-          >
-            No cards yet. Add your first card to get started.
-          </Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setIsAddCardModalOpen(true)}
-            sx={{
-              backgroundColor: '#23232a',
-              color: '#e5e7eb',
-              '&:hover': {
-                backgroundColor: '#2d2d35',
-              },
-              '& .MuiSvgIcon-root': {
-                color: '#6b7280',
-              },
-            }}
-          >
-            Add Card
-          </Button>
-        </Box>
-      ) : (
-        selectedDashboard.boxes.map((box) => (
-          <DraggableResizableBox
-            key={box.id}
-            id={box.id}
-            htmlContent={box.html || ''}
-            position={{ x: box.x, y: box.y }}
-            size={{ width: box.width, height: box.height }}
-            onResize={(newSize) => {
-              updateBox(selectedDashboard.id, box.id, newSize);
-            }}
-            onDelete={() => {
-              deleteBox(selectedDashboard.id, box.id);
-            }}
-            isEditMode={isEditMode}
-            zIndex={zIndexMap[box.id] || 1}
-            onFocus={() => handleCardFocus(box.id)}
-            conversationHistory={box.conversationHistory}
-            onUpdate={(html, conversationHistory, intervalSettings) => {
-              updateBox(selectedDashboard.id, box.id, { html, conversationHistory, intervalSettings });
-            }}
-            intervalSettings={box.intervalSettings}
-          />
-        ))
-      )}
-
-      <AddCardModal
-        open={isAddCardModalOpen}
-        onClose={() => {
-          setIsAddCardModalOpen(false);
-          setGeneratedHtml('');
-          setConversationHistory({ prompts: '', html: '' });
-          setIntervalSettings({ isEnabled: false, interval: 1, prompt: '' });
-        }}
-        onSave={handleAddBox}
-        onHtmlGenerated={(html) => {
-          setGeneratedHtml(html);
-          setConversationHistory(prev => ({ ...prev, html }));
-        }}
-        initialConversationHistory={conversationHistory}
-        initialIntervalSettings={intervalSettings}
-      />
-    </div>
+          </Box>
+        )}
+      </div>
+    </>
   );
 }; 
