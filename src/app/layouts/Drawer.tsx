@@ -115,7 +115,7 @@ export const Drawer = ({
               Future Release
             </Typography>
             <Typography sx={{ color: '#e5e7eb', lineHeight: 1.6 }}>
-              This feature will enable users to host their dashboards under custom domains, making them publicly accessible. You'll be able to share your dashboards with anyone through a unique URL, perfect for team collaboration or public presentations.
+              This feature will enable users to host their dashboards under custom domains, making them publicly accessible. You&apos;ll be able to share your dashboards with anyone through a unique URL, perfect for team collaboration or public presentations.
             </Typography>
           </Box>
         );

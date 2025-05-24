@@ -1,13 +1,24 @@
 import React from 'react';
 import { useDragLayer } from 'react-dnd';
 import { Box } from '@mui/material';
+import { Box as DashboardBox } from '../context/DashboardContext';
 
 interface CustomDragLayerProps {
   zoom: number;
-  boxes: any[];
+  boxes: DashboardBox[];
 }
 
-function getItemStyles(initialOffset: any, currentOffset: any, initialSourceClientOffset: any, zoom: number): React.CSSProperties {
+interface DragOffset {
+  x: number;
+  y: number;
+}
+
+function getItemStyles(
+  initialOffset: DragOffset | null,
+  currentOffset: DragOffset | null,
+  initialSourceClientOffset: DragOffset | null,
+  zoom: number
+): React.CSSProperties {
   if (!initialOffset || !currentOffset || !initialSourceClientOffset) {
     return { display: 'none' };
   }
@@ -30,7 +41,6 @@ function getItemStyles(initialOffset: any, currentOffset: any, initialSourceClie
 
 export const CustomDragLayer: React.FC<CustomDragLayerProps> = ({ zoom, boxes }) => {
   const {
-    itemType,
     isDragging,
     item,
     initialOffset,
@@ -38,7 +48,6 @@ export const CustomDragLayer: React.FC<CustomDragLayerProps> = ({ zoom, boxes })
     initialSourceClientOffset,
   } = useDragLayer((monitor) => ({
     item: monitor.getItem(),
-    itemType: monitor.getItemType(),
     initialOffset: monitor.getInitialClientOffset(),
     currentOffset: monitor.getClientOffset(),
     initialSourceClientOffset: monitor.getInitialSourceClientOffset(),

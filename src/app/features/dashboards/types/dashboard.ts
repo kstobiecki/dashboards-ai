@@ -12,7 +12,7 @@ export interface Dashboard {
   description: string;
   createdAt: string;
   boxes: Box[];
-  zoom?: number; // 1 = 100%
+  zoom: number; // 1 = 100%
 }
 
 export interface CreateDashboardModalProps {
