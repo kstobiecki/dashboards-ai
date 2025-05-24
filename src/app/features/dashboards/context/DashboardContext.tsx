@@ -27,6 +27,7 @@ export interface Dashboard {
   description: string;
   createdAt: string;
   boxes: Box[];
+  zoom: number;
 }
 
 interface DashboardContextType {
@@ -39,6 +40,8 @@ interface DashboardContextType {
   updateBox: (dashboardId: string, boxId: string, updates: Partial<Box>) => void;
   deleteBox: (dashboardId: string, boxId: string) => void;
   cloneBox: (sourceDashboardId: string, targetDashboardId: string, boxId: string) => void;
+  setZoomForDashboard: (dashboardId: string, zoom: number) => void;
+  getZoomForDashboard: (dashboardId: string) => number;
 }
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
@@ -54,6 +57,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
       description,
       createdAt: new Date().toISOString(),
       boxes: [],
+      zoom: 1,
     };
     setDashboards((prev) => [...prev, newDashboard]);
     setSelectedDashboard(newDashboard);
@@ -157,6 +161,16 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const setZoomForDashboard = (dashboardId: string, zoom: number) => {
+    setDashboards((prev) => prev.map(d => d.id === dashboardId ? { ...d, zoom } : d));
+    setSelectedDashboard((prev) => prev && prev.id === dashboardId ? { ...prev, zoom } : prev);
+  };
+
+  const getZoomForDashboard = (dashboardId: string) => {
+    const dashboard = dashboards.find(d => d.id === dashboardId);
+    return dashboard?.zoom ?? 1;
+  };
+
   return (
     <DashboardContext.Provider
       value={{
@@ -169,6 +183,8 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
         updateBox,
         deleteBox,
         cloneBox,
+        setZoomForDashboard,
+        getZoomForDashboard,
       }}
     >
       {children}
