@@ -1,12 +1,12 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode } from 'react';
-import { nanoid } from 'nanoid';
 import { createTradingViewCard } from '../mocks/TradingViewCard';
 import { createTeslaStockDashboardCard } from '../mocks/TeslaStockDashboardCard';
 import { createFinancialNewsCard } from '../mocks/FinancialNewsCard';
 import { createWeatherCard } from '../mocks/WeatherCard';
 import { createWorldClockCard } from '../mocks/WorldClockCard';
+import { createToDoCard } from '../mocks/ToDoCard';
 
 export interface ExploreCard {
   id: string;
@@ -26,26 +26,13 @@ interface ExploreContextType {
   setCards: (cards: ExploreCard[]) => void;
 }
 
-const createEmptyCard = (): ExploreCard => ({
-  id: `explore-${nanoid(10)}`,
-  conversationHistory: {
-    prompts: '',
-    html: '<div style="width: 100%; height: 100%; background-color: #FFEB3B; display: flex; align-items: center; justify-content: center; font-family: Arial, sans-serif; color: #333;">Empty Card</div>',
-  },
-  intervalSettings: {
-    isEnabled: false,
-    interval: 5,
-    prompt: '',
-  },
-});
-
 const initialCards = [
   createTradingViewCard(),
   createTeslaStockDashboardCard(),
   createFinancialNewsCard(),
   createWeatherCard(),
   createWorldClockCard(),
-  ...Array(1).fill(null).map(() => createEmptyCard())
+  createToDoCard(),
 ];
 
 const ExploreContext = createContext<ExploreContextType | undefined>(undefined);
