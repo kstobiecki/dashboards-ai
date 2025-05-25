@@ -1,4 +1,5 @@
 import { DashboardContent } from "../features/dashboards/components/DashboardContent"
+import { ExploreContent } from "../features/explore/components/ExploreContent"
 
 import { Box } from "@mui/material"
 
@@ -23,6 +24,9 @@ export const MainPanel = ({ selectedItem, menuWidth = 69 }: MainPanelProps) => (
     >
         {selectedItem === 'dashboard' && (
             <DashboardContent />
+        )}
+        {selectedItem === 'explore' && (
+            <ExploreContent />
         )}
         {(selectedItem === 'hosting' || selectedItem === 'integrations' || selectedItem === 'settings') && (
             <Box sx={{
