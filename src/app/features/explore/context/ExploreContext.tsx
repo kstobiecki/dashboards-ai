@@ -25,7 +25,7 @@ const createEmptyCard = (): ExploreCard => ({
   id: `explore-${nanoid(10)}`,
   conversationHistory: {
     prompts: '',
-    html: '',
+    html: '<div style="width: 100%; height: 100%; background-color: #FFEB3B; display: flex; align-items: center; justify-content: center; font-family: Arial, sans-serif; color: #333;">Empty Card</div>',
   },
   intervalSettings: {
     isEnabled: false,
