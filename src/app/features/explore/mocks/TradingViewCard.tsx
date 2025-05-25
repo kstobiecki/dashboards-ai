@@ -6,7 +6,7 @@ import { nanoid } from 'nanoid';
 export const createTradingViewCard = (): ExploreCard => ({
   id: `trading-view-${nanoid(10)}`,
   conversationHistory: {
-    prompts: 'Create a TradingView chart widget',
+    prompts: 'Create an HTML file that embeds a TradingView widget. The widget should fill the entire area of the page, as this HTML will be displayed inside an iframe. Ensure that all necessary TradingView script dependencies are included, and style the page so the widget takes up 100% width and height of the iframe.',
     html: `<!DOCTYPE html>
 <html lang="en">
 <head>
