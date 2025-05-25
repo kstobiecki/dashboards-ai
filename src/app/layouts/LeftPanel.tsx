@@ -1,5 +1,5 @@
 import { Box, List, ListItemButton, ListItemIcon, Typography } from '@mui/material';
-import Image from 'next/image';
+import GridViewIcon from '@mui/icons-material/GridView';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ExploreIcon from '@mui/icons-material/Explore';
 import CloudIcon from '@mui/icons-material/Cloud';
@@ -61,15 +61,16 @@ export const LeftPanel = ({ selectedItem, onSelect, menuWidth = 69 }: LeftPanelP
           borderRadius: '50%',
           overflow: 'hidden',
           position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          },
         }}
       >
-        <Image
-          src="/assets/logos/main.png"
-          alt="DashboardsAI Logo"
-          fill
-          style={{ objectFit: 'cover' }}
-          priority
-        />
+        <GridViewIcon sx={{ color: '#ffffff', fontSize: 20 }} />
       </Box>
     </Box>
     <List>
