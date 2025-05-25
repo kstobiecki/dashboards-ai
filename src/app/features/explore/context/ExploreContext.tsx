@@ -3,6 +3,8 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { nanoid } from 'nanoid';
 import { createTradingViewCard } from '../mocks/TradingViewCard';
+import { createTeslaStockDashboardCard } from '../mocks/TeslaStockDashboardCard';
+import { createFinancialNewsCard } from '../mocks/FinancialNewsCard';
 
 export interface ExploreCard {
   id: string;
@@ -37,7 +39,9 @@ const createEmptyCard = (): ExploreCard => ({
 
 const initialCards = [
   createTradingViewCard(),
-  ...Array(5).fill(null).map(() => createEmptyCard())
+  createTeslaStockDashboardCard(),
+  createFinancialNewsCard(),
+  ...Array(3).fill(null).map(() => createEmptyCard())
 ];
 
 const ExploreContext = createContext<ExploreContextType | undefined>(undefined);
