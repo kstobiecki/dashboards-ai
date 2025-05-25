@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Dashboards AI",
   description: "AI-powered dashboards",
+  icons: {
+    icon: "/assets/icons/favicon.ico",
+  },
 };
 
 export default function RootLayout({
