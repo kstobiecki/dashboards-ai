@@ -1,5 +1,4 @@
 import { Box, List, ListItemButton, ListItemIcon, Typography } from '@mui/material';
-import Image from 'next/image';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ExploreIcon from '@mui/icons-material/Explore';
 import CloudIcon from '@mui/icons-material/Cloud';
@@ -14,7 +13,7 @@ interface MenuItem {
 
 interface LeftPanelProps {
   selectedItem: string;
-  onSelect: (id: string) => void;
+  onSelect: (item: string) => void;
   menuWidth?: number;
 }
 
@@ -42,37 +41,7 @@ export const LeftPanel = ({ selectedItem, onSelect, menuWidth = 69 }: LeftPanelP
       zIndex: 1001,
     }}
   >
-    <Box 
-      sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        p: 2,
-        borderBottom: '1px solid #27272a',
-        minHeight: 64,
-        cursor: 'pointer',
-      }}
-      onClick={() => onSelect('dashboard')}
-    >
-      <Box
-        sx={{
-          width: 32,
-          height: 32,
-          borderRadius: '50%',
-          overflow: 'hidden',
-          position: 'relative',
-        }}
-      >
-        <Image
-          src="/assets/logos/main.png"
-          alt="DashboardsAI Logo"
-          fill
-          style={{ objectFit: 'cover' }}
-          priority
-        />
-      </Box>
-    </Box>
-    <List>
+    <List sx={{ mt: 3 }}>
       {menuItems.map((item) => (
         <ListItemButton
           key={item.id}

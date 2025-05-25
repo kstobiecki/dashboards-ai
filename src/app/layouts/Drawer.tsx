@@ -108,6 +108,12 @@ export const Drawer = ({
             <Typography variant="h6" component="div" sx={{ mb: 3, color: '#e5e7eb' }}>
               Explore
             </Typography>
+            <Typography sx={{ color: '#6b7280', mb: 2 }}>
+              Future Release
+            </Typography>
+            <Typography sx={{ color: '#e5e7eb', lineHeight: 1.6 }}>
+              Discover and explore the most popular and trending dashboards created by our community. Browse through publicly shared cards, find inspiration, and like your favorites. This feature will help you discover new ways to visualize and present your data while connecting with other dashboard creators.
+            </Typography>
           </Box>
         );
       case 'hosting':
@@ -134,7 +140,7 @@ export const Drawer = ({
               Future Release
             </Typography>
             <Typography sx={{ color: '#e5e7eb', lineHeight: 1.6 }}>
-              Coming soon: Seamless integration with popular services like Google Calendar, Slack, and more. Display real-time data from your favorite tools directly in your dashboard cards, creating a unified view of all your important information.
+              Seamless integration with popular services like Google Calendar, Slack, and more. Display real-time data from your favorite tools directly in your dashboard cards, creating a unified view of all your important information.
             </Typography>
           </Box>
         );
