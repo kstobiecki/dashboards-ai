@@ -6,6 +6,7 @@ import { createTradingViewCard } from '../mocks/TradingViewCard';
 import { createTeslaStockDashboardCard } from '../mocks/TeslaStockDashboardCard';
 import { createFinancialNewsCard } from '../mocks/FinancialNewsCard';
 import { createWeatherCard } from '../mocks/WeatherCard';
+import { createWorldClockCard } from '../mocks/WorldClockCard';
 
 export interface ExploreCard {
   id: string;
@@ -43,7 +44,8 @@ const initialCards = [
   createTeslaStockDashboardCard(),
   createFinancialNewsCard(),
   createWeatherCard(),
-  ...Array(2).fill(null).map(() => createEmptyCard())
+  createWorldClockCard(),
+  ...Array(1).fill(null).map(() => createEmptyCard())
 ];
 
 const ExploreContext = createContext<ExploreContextType | undefined>(undefined);
