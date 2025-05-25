@@ -15,13 +15,18 @@ interface DrawerProps {
 export const Drawer = ({ 
   selectedItem,
 }: DrawerProps) => {
-  const { createDashboard } = useDashboard();
+  const { createDashboard, setIsAnyModalOpen } = useDashboard();
   const drawerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [dashboardToDelete, setDashboardToDelete] = useState<Dashboard | null>(null);
   const drawerWidth = 250;
   const menuWidth = 69;
+
+  // Update isAnyModalOpen when modals change
+  useEffect(() => {
+    setIsAnyModalOpen(isCreateModalOpen || !!dashboardToDelete);
+  }, [isCreateModalOpen, dashboardToDelete, setIsAnyModalOpen]);
 
   const onVisibilityChange = useCallback((visible: boolean) => {
     setIsVisible(visible);

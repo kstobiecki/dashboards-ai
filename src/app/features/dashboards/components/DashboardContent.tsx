@@ -20,6 +20,7 @@ export const DashboardContent = () => {
     deleteBox,
     setZoomForDashboard,
     getZoomForDashboard,
+    isAnyModalOpen,
   } = useDashboard();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
@@ -284,7 +285,7 @@ export const DashboardContent = () => {
             initialIntervalSettings={intervalSettings}
           />
         </div>
-        {isEmptyDashboard && !isAddCardModalOpen && (
+        {isEmptyDashboard && !isAddCardModalOpen && !isAnyModalOpen && (
           <Box
             sx={{
               position: 'fixed',

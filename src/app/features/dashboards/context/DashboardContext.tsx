@@ -42,6 +42,8 @@ interface DashboardContextType {
   cloneBox: (sourceDashboardId: string, targetDashboardId: string, boxId: string) => void;
   setZoomForDashboard: (dashboardId: string, zoom: number) => void;
   getZoomForDashboard: (dashboardId: string) => number;
+  isAnyModalOpen: boolean;
+  setIsAnyModalOpen: (isOpen: boolean) => void;
 }
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
@@ -49,6 +51,7 @@ const DashboardContext = createContext<DashboardContextType | undefined>(undefin
 export const DashboardProvider = ({ children }: { children: ReactNode }) => {
   const [dashboards, setDashboards] = useState<Dashboard[]>([]);
   const [selectedDashboard, setSelectedDashboard] = useState<Dashboard | null>(null);
+  const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
 
   const createDashboard = (title: string, description: string) => {
     const newDashboard: Dashboard = {
@@ -185,6 +188,8 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
         cloneBox,
         setZoomForDashboard,
         getZoomForDashboard,
+        isAnyModalOpen,
+        setIsAnyModalOpen,
       }}
     >
       {children}
