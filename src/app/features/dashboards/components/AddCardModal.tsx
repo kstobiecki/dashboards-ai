@@ -436,7 +436,25 @@ export function AddCardModal({ open, onClose, onSave, onHtmlGenerated, initialCo
             </Box>
           </Box>
         </DialogContent>
-        <DialogActions sx={{ pb: 2, pr: 3 }}>
+        <DialogActions sx={{ pb: 2, px: 3 }}>
+          <Button
+            onClick={() => {
+              navigator.clipboard.writeText(generatedHtml);
+            }}
+            disabled={!generatedHtml}
+            sx={{
+              color: '#bdbdbd',
+              '&:hover': {
+                backgroundColor: '#2d2d35',
+              },
+              '&:disabled': {
+                color: '#6b7280',
+              },
+            }}
+          >
+            Copy HTML
+          </Button>
+          <Box sx={{ flex: 1 }} />
           <Button onClick={handleClose} sx={{ color: '#bdbdbd' }}>
             Cancel
           </Button>
