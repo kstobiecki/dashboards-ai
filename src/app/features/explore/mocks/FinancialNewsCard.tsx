@@ -285,7 +285,7 @@ export const createFinancialNewsCard = (): ExploreCard => ({
         </html>
     `,},
     intervalSettings: {
-        isEnabled: true,
+        isEnabled: false,
         interval: 1440,
         prompt: 'Update the HTML file with the latest financial news data. Do not change the structure of the HTML file. Market Alert should be updated with the latest most important news like FED Update, Tariff Concerns, Commodities, Trump Admin, etc. Latest Updates should be updated with the latest news like S&P 500, Tariffs, Gold, Trump Admin, Tesla, etc.',
   },

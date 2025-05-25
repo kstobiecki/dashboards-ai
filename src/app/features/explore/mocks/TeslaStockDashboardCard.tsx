@@ -152,7 +152,7 @@ export const createTeslaStockDashboardCard = (): ExploreCard => ({
     </html>`,
   },
   intervalSettings: {
-    isEnabled: true,
+    isEnabled: false,
     interval: 1440,
     prompt: 'Update the HTML file with the latest Tesla stock data. Do not change the structure of the HTML file.',
   },
