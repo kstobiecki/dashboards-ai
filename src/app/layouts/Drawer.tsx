@@ -15,13 +15,18 @@ interface DrawerProps {
 export const Drawer = ({ 
   selectedItem,
 }: DrawerProps) => {
-  const { createDashboard } = useDashboard();
+  const { createDashboard, setIsAnyModalOpen } = useDashboard();
   const drawerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [dashboardToDelete, setDashboardToDelete] = useState<Dashboard | null>(null);
   const drawerWidth = 250;
   const menuWidth = 69;
+
+  // Update isAnyModalOpen when modals change
+  useEffect(() => {
+    setIsAnyModalOpen(isCreateModalOpen || !!dashboardToDelete);
+  }, [isCreateModalOpen, dashboardToDelete, setIsAnyModalOpen]);
 
   const onVisibilityChange = useCallback((visible: boolean) => {
     setIsVisible(visible);
@@ -115,7 +120,7 @@ export const Drawer = ({
               Future Release
             </Typography>
             <Typography sx={{ color: '#e5e7eb', lineHeight: 1.6 }}>
-              This feature will enable users to host their dashboards under custom domains, making them publicly accessible. You'll be able to share your dashboards with anyone through a unique URL, perfect for team collaboration or public presentations.
+              This feature will enable users to host their dashboards under custom domains, making them publicly accessible. You&apos;ll be able to share your dashboards with anyone through a unique URL, perfect for team collaboration or public presentations.
             </Typography>
           </Box>
         );

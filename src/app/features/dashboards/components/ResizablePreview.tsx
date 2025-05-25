@@ -2,6 +2,7 @@ import { Box, IconButton } from '@mui/material';
 import { ResizableBox } from 'react-resizable';
 import CloseIcon from '@mui/icons-material/Close';
 import { useState, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import 'react-resizable/css/styles.css';
 
 interface ResizablePreviewProps {
@@ -50,7 +51,7 @@ export function ResizablePreview({ htmlContent, onClose }: ResizablePreviewProps
     }
   }, [onClose]);
 
-  return (
+  const content = (
     <Box
       sx={{
         position: 'fixed',
@@ -62,11 +63,17 @@ export function ResizablePreview({ htmlContent, onClose }: ResizablePreviewProps
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 2000,
+        zIndex: 9999,
       }}
       onClick={handleBackdropClick}
     >
-      <Box onClick={handleClick}>
+      <Box 
+        onClick={handleClick}
+        sx={{
+          position: 'relative',
+          zIndex: 10000,
+        }}
+      >
         <ResizableBox
           width={dimensions.width}
           height={dimensions.height}
@@ -83,6 +90,7 @@ export function ResizablePreview({ htmlContent, onClose }: ResizablePreviewProps
             overflow: 'hidden',
             position: 'relative',
             userSelect: 'none',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
           }}
         >
           <IconButton
@@ -155,4 +163,6 @@ export function ResizablePreview({ htmlContent, onClose }: ResizablePreviewProps
       `}</style>
     </Box>
   );
+
+  return createPortal(content, document.body);
 } 

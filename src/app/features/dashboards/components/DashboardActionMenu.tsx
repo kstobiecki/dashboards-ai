@@ -37,7 +37,7 @@ export const DashboardActionMenu: React.FC<DashboardActionMenuProps> = ({
         right: 24,
         display: 'flex',
         gap: 2,
-        zIndex: 2000,
+        zIndex: 100,
       }}
     >
       <IconButton

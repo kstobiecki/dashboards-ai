@@ -1,5 +1,5 @@
-import { Box, Typography, Button, IconButton } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Check as CheckIcon, ZoomIn as ZoomInIcon, ZoomOut as ZoomOutIcon } from '@mui/icons-material';
+import { Box, Typography, Button } from '@mui/material';
+import { Add as AddIcon } from '@mui/icons-material';
 import { useDashboard } from '../context/DashboardContext';
 import { useState, useEffect, useRef } from 'react';
 import { CreateDashboardModal } from './CreateDashboardModal';
@@ -20,11 +20,11 @@ export const DashboardContent = () => {
     deleteBox,
     setZoomForDashboard,
     getZoomForDashboard,
+    isAnyModalOpen,
   } = useDashboard();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(true);
-  const [isHovering, setIsHovering] = useState(false);
   const [zIndexMap, setZIndexMap] = useState<Record<string, number>>({});
   const [nextZIndex, setNextZIndex] = useState(1);
   const [generatedHtml, setGeneratedHtml] = useState<string>('');
@@ -232,8 +232,6 @@ export const DashboardContent = () => {
         <div 
           ref={dropRef} 
           data-drop-container
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
           style={{ 
             minHeight: '300vh', 
             minWidth: '300vw',
@@ -287,7 +285,7 @@ export const DashboardContent = () => {
             initialIntervalSettings={intervalSettings}
           />
         </div>
-        {isEmptyDashboard && !isAddCardModalOpen && (
+        {isEmptyDashboard && !isAddCardModalOpen && !isAnyModalOpen && (
           <Box
             sx={{
               position: 'fixed',

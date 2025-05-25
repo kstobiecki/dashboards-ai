@@ -176,6 +176,12 @@ export function AddCardModal({ open, onClose, onSave, onHtmlGenerated, initialCo
             borderRadius: 2,
             boxShadow: 24,
             minWidth: 340,
+            zIndex: 12000,
+          },
+        }}
+        BackdropProps={{
+          sx: {
+            zIndex: 11999,
           },
         }}
       >
