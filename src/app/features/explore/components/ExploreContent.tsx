@@ -27,7 +27,6 @@ export const ExploreContent = () => {
           display: 'flex',
           flexDirection: 'column',
           gap: '24px',
-          maxWidth: '1200px',
           width: '100%',
         }}
       >

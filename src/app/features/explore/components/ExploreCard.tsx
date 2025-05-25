@@ -54,7 +54,7 @@ export const ExploreCard = ({ card }: ExploreCardProps) => {
     <Box
       sx={{
         width: '100%',
-        height: '300px',
+        height: '400px',
         borderRadius: '8px',
         overflow: 'hidden',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
