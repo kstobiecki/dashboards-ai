@@ -13,6 +13,7 @@ export interface Dashboard {
   createdAt: string;
   boxes: Box[];
   zoom: number; // 1 = 100%
+  isEditMode: boolean;
 }
 
 export interface CreateDashboardModalProps {

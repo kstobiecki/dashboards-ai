@@ -20,11 +20,12 @@ export const DashboardContent = () => {
     deleteBox,
     setZoomForDashboard,
     getZoomForDashboard,
+    setEditModeForDashboard,
+    getEditModeForDashboard,
     isAnyModalOpen,
   } = useDashboard();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(true);
   const [zIndexMap, setZIndexMap] = useState<Record<string, number>>({});
   const [nextZIndex, setNextZIndex] = useState(1);
   const [generatedHtml, setGeneratedHtml] = useState<string>('');
@@ -34,9 +35,9 @@ export const DashboardContent = () => {
 
   useEffect(() => {
     if (selectedDashboard && selectedDashboard.boxes.length === 0) {
-      setIsEditMode(true);
+      setEditModeForDashboard(selectedDashboard.id, true);
     }
-  }, [selectedDashboard]);
+  }, [selectedDashboard, setEditModeForDashboard]);
 
   const handleCardFocus = (cardId: string) => {
     setZIndexMap(prev => ({
@@ -49,7 +50,7 @@ export const DashboardContent = () => {
   const [, drop] = useDrop(() => ({
     accept: 'BOX',
     drop: (item: { id: string }, monitor) => {
-      if (!selectedDashboard || !isEditMode) return;
+      if (!selectedDashboard || !getEditModeForDashboard(selectedDashboard.id)) return;
       
       const delta = monitor.getDifferenceFromInitialOffset();
       if (!delta) return;
@@ -64,14 +65,14 @@ export const DashboardContent = () => {
       
       updateBox(selectedDashboard.id, item.id, newPosition);
     },
-  }), [selectedDashboard, updateBox, isEditMode]);
+  }), [selectedDashboard, updateBox, getEditModeForDashboard]);
 
   const dropRef = (node: HTMLDivElement | null) => {
     drop(node);
   };
 
   const handleAddBox = (intervalSettings: { isEnabled: boolean; interval: number; prompt: string }) => {
-    if (!selectedDashboard || !isEditMode) return;
+    if (!selectedDashboard || !getEditModeForDashboard(selectedDashboard.id)) return;
     if (selectedDashboard.boxes.length >= 20) return;
     
     const newBox = {
@@ -216,8 +217,8 @@ export const DashboardContent = () => {
         {/* Buttons always visible at top-right of viewport */}
         {!isEmptyDashboard && (
           <DashboardActionMenu
-            isEditMode={isEditMode}
-            setIsEditMode={setIsEditMode}
+            isEditMode={selectedDashboard ? getEditModeForDashboard(selectedDashboard.id) : false}
+            setIsEditMode={(isEditMode) => selectedDashboard && setEditModeForDashboard(selectedDashboard.id, isEditMode)}
             zoom={zoom}
             setZoom={handleSetZoom}
             minDisplay={minDisplay}
@@ -257,7 +258,7 @@ export const DashboardContent = () => {
               onDelete={() => {
                 deleteBox(selectedDashboard.id, box.id);
               }}
-              isEditMode={isEditMode}
+              isEditMode={selectedDashboard ? getEditModeForDashboard(selectedDashboard.id) : false}
               zIndex={zIndexMap[box.id] || 1}
               onFocus={() => handleCardFocus(box.id)}
               conversationHistory={box.conversationHistory}

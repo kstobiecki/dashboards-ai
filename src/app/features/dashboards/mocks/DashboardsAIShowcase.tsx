@@ -2,6 +2,7 @@ import { Dashboard } from "../context/DashboardContext"
 
 export const DashboardsAIShowcase: Dashboard = {
     "id": "dashboard-1748291567808-5q2crfMdkV",
+    "isEditMode": false,
     "title": "Dashboards AI Showcase",
     "description": "Experience the full power of dashboards-ai: an AI-driven dashboard builder that lets you create, customize, and manage dynamic dashboards with ease. Add new cards by prompting the Sonar API, which generates and renders custom HTML content. Set interval prompts for cards to auto-refresh with the latest data. Drag, resize, and edit cards, preview before saving, and explore popular public cards to reuse. Flexible management: delete, copy, and move cards between dashboards.",
     "createdAt": "2025-05-26T20:32:47.808Z",

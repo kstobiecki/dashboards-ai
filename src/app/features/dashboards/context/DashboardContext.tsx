@@ -29,6 +29,7 @@ export interface Dashboard {
   createdAt: string;
   boxes: Box[];
   zoom: number;
+  isEditMode: boolean;
 }
 
 interface DashboardContextType {
@@ -43,6 +44,8 @@ interface DashboardContextType {
   cloneBox: (sourceDashboardId: string, targetDashboardId: string, boxId: string) => void;
   setZoomForDashboard: (dashboardId: string, zoom: number) => void;
   getZoomForDashboard: (dashboardId: string) => number;
+  setEditModeForDashboard: (dashboardId: string, isEditMode: boolean) => void;
+  getEditModeForDashboard: (dashboardId: string) => boolean;
   isAnyModalOpen: boolean;
   setIsAnyModalOpen: (isOpen: boolean) => void;
 }
@@ -62,6 +65,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
       createdAt: new Date().toISOString(),
       boxes: [],
       zoom: 1,
+      isEditMode: true,
     };
     setDashboards((prev) => [...prev, newDashboard]);
     setSelectedDashboard(newDashboard);
@@ -175,6 +179,16 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     return dashboard?.zoom ?? 1;
   };
 
+  const setEditModeForDashboard = (dashboardId: string, isEditMode: boolean) => {
+    setDashboards((prev) => prev.map(d => d.id === dashboardId ? { ...d, isEditMode } : d));
+    setSelectedDashboard((prev) => prev && prev.id === dashboardId ? { ...prev, isEditMode } : prev);
+  };
+
+  const getEditModeForDashboard = (dashboardId: string) => {
+    const dashboard = dashboards.find(d => d.id === dashboardId);
+    return dashboard?.isEditMode ?? false;
+  };
+
   return (
     <DashboardContext.Provider
       value={{
@@ -189,6 +203,8 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
         cloneBox,
         setZoomForDashboard,
         getZoomForDashboard,
+        setEditModeForDashboard,
+        getEditModeForDashboard,
         isAnyModalOpen,
         setIsAnyModalOpen,
       }}
