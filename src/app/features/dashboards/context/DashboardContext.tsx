@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { nanoid } from 'nanoid';
+import { DashboardsAIShowcase } from '../mocks/DashboardsAIShowcase';
 
 export interface Box {
   id: string;
@@ -49,7 +50,7 @@ interface DashboardContextType {
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
 
 export const DashboardProvider = ({ children }: { children: ReactNode }) => {
-  const [dashboards, setDashboards] = useState<Dashboard[]>([]);
+  const [dashboards, setDashboards] = useState<Dashboard[]>([DashboardsAIShowcase]);
   const [selectedDashboard, setSelectedDashboard] = useState<Dashboard | null>(null);
   const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
 
