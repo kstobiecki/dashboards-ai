@@ -83,16 +83,22 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+1. **Create a `.env` file** in the root of the project and add your API key:
+
+```
+PERPLEXITY_API_KEY=your_api_key_here
+```
+
+2. **Install dependencies** (if not already installed):
+
+```bash
+npm install
+```
+
+3. **Start the development server**:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
