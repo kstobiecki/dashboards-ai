@@ -121,6 +121,48 @@ export const DashboardContent = () => {
       >
         <Box
           sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            display: 'flex',
+            justifyContent: 'center',
+            pt: 2,
+            px: 2,
+            zIndex: 10,
+          }}
+        >
+          <Box
+            sx={{
+              maxWidth: 560,
+              backgroundColor: 'rgba(30, 30, 35, 0.95)',
+              borderRadius: 2,
+              p: 2.5,
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+            }}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                color: '#9ca3af',
+                textAlign: 'center',
+                lineHeight: 1.6,
+                '& a': {
+                  color: '#60a5fa',
+                  textDecoration: 'none',
+                  '&:hover': { textDecoration: 'underline' },
+                },
+              }}
+            >
+              This project was created for a hackathon and I&apos;ve started maintaining it again. I&apos;d like to add a backend and save actual dashboards. If you&apos;re a user, please contact me at{' '}
+              <a href="mailto:stobiecki.kamil@gmail.com">stobiecki.kamil@gmail.com</a> and we can discuss what functionalities would be useful for you.
+            </Typography>
+          </Box>
+        </Box>
+
+        <Box
+          sx={{
             width: '33vw',
             minWidth: 260,
             maxWidth: 480,
