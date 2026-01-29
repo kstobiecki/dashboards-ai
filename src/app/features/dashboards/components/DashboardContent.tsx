@@ -155,8 +155,8 @@ export const DashboardContent = () => {
                 },
               }}
             >
-              This project was created for a hackathon and I&apos;ve started maintaining it again. I&apos;d like to add a backend and save actual dashboards. If you&apos;re a user, please contact me at{' '}
-              <a href="mailto:stobiecki.kamil@gmail.com">stobiecki.kamil@gmail.com</a> and we can discuss what functionalities would be useful for you.
+              Started this at a hackathon and I&apos;m picking it back up. First thing I&apos;m aiming for is saving your dashboard state per session so nothing gets lost when you close the tab. If you&apos;re using it and have ideas or run into issues, drop me a line at{' '}
+              <a href="mailto:stobiecki.kamil@gmail.com">stobiecki.kamil@gmail.com</a>—I&apos;d love to hear what would make it more useful for you.
             </Typography>
           </Box>
         </Box>
